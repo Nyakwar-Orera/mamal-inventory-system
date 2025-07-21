@@ -2,7 +2,6 @@ services:
   - type: web
     name: asset-management-system
     env: python
-    runtime: python3.10  # ✅ Add this line
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn run:app
     plan: free
