@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: asset-management-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
+    plan: free
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        value: your-production-secret-key
+      - key: MAIL_USERNAME
+        value: your-email@gmail.com
+      - key: MAIL_PASSWORD
+        value: your-gmail-app-password
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: assetdb
+          property: connectionString
+
+databases:
+  - name: assetdb
+    plan: free

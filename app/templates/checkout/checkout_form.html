@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Checkout Asset: {{ asset.name }}</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.user_id.label(class="form-label") }}
+            {{ form.user_id(class="form-select") }}
+        </div>
+        <div class="mb-3">
+            {{ form.expected_return.label(class="form-label") }}
+            {{ form.expected_return(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.condition_out.label(class="form-label") }}
+            {{ form.condition_out(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

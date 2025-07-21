@@ -1,0 +1,33 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Welcome to MAMAL Lab{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-lg">
+            <div class="card-body text-center">
+                <!-- Avatar Section -->
+                <div class="mb-4">
+                    {% if current_user.is_authenticated and current_user.role == 'admin' %}
+                        <!-- Admin Avatar -->
+                        <img src="{{ url_for('static', filename='images/admin-avatar.png') }}" alt="Admin Avatar" class="rounded-circle" width="100" height="100">
+                    {% else %}
+                        <!-- Default Avatar for non-admins -->
+                        <img src="{{ url_for('static', filename='images/avatar-placeholder.png') }}" alt="Avatar" class="rounded-circle" width="100" height="100">
+                    {% endif %}
+                </div>
+
+                <h4 class="card-title mb-4">Welcome to MAMAL Lab</h4>
+                <div class="d-grid gap-2">
+                    <!-- Login Button -->
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary mb-2">Login</a>
+
+                    <!-- Register Button (for users who aren't registered) -->
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary mb-2">Register</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

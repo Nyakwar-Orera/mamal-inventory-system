@@ -1,0 +1,33 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Update Stationery{% endblock %}
+{% block content %}
+
+<h2>Update Stationery: {{ item.item_type }}</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.quantity_change.label(class="form-label") }}
+        {{ form.quantity_change(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.action.label(class="form-label") }}
+        {{ form.action(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.threshold.label(class="form-label") }}
+        {{ form.threshold(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.location.label(class="form-label") }}
+        {{ form.location(class="form-select") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+    <a href="{{ url_for('stationery.view_stationery') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+{% endblock %}

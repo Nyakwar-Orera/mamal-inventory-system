@@ -1,0 +1,44 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Checkout History</h2>
+    {% if checkouts.items %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Asset Name</th>
+                <th>User</th>
+                <th>Condition at Checkout</th>
+                <th>Condition at Check-in</th>
+                <th>Checkout Date</th>
+                <th>Return Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for checkout in checkouts.items %}
+            <tr>
+                <td>{{ checkout.asset.name }}</td>
+                <td>{{ checkout.user.username }}</td>
+                <td>{{ checkout.condition_out }}</td>
+                <td>{{ checkout.condition_in }}</td>
+                <td>{{ checkout.checkout_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ checkout.actual_return.strftime('%Y-%m-%d') if checkout.actual_return else 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        {% if checkouts.has_prev %}
+        <a href="{{ url_for('checkout.checkout_history', page=checkouts.prev_num) }}" class="btn btn-link">Previous</a>
+        {% endif %}
+        <span>Page {{ checkouts.page }} of {{ checkouts.pages }}</span>
+        {% if checkouts.has_next %}
+        <a href="{{ url_for('checkout.checkout_history', page=checkouts.next_num) }}" class="btn btn-link">Next</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <p>No checkout history available.</p>
+    {% endif %}
+</div>
+{% endblock %}

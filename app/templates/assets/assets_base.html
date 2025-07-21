@@ -1,0 +1,23 @@
+<!-- templates/assets/assets_base.html -->
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="{{ url_for('assets.view_assets') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'assets.view_assets' %}active{% endif %}">
+                📄 View Assets
+            </a>
+            <a href="{{ url_for('assets.add_asset') }}" class="list-group-item list-group-item-action {% if request.endpoint == 'assets.add_asset' %}active{% endif %}">
+                ➕ Add Asset
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+        {% block asset_content %}{% endblock %}
+    </div>
+</div>
+{% endblock %}

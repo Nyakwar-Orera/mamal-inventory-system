@@ -1,0 +1,37 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Add Stationery{% endblock %}
+{% block content %}
+
+<h2>Add New Stationery</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.item_type.label(class="form-label") }}
+        {{ form.item_type(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.quantity.label(class="form-label") }}
+        {{ form.quantity(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.unit.label(class="form-label") }}
+        {{ form.unit(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.threshold.label(class="form-label") }}
+        {{ form.threshold(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.location.label(class="form-label") }}
+        {{ form.location(class="form-select") }}
+    </div>
+
+    <button type="submit" class="btn btn-success">{{ form.submit.label.text }}</button>
+</form>
+
+{% endblock %}

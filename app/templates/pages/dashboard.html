@@ -1,0 +1,294 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <!-- Share Button -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                Share
+            </button>
+            <!-- Export Button -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/export-dashboard'">
+                Export
+            </button>
+        </div>
+        <!-- Time Filter Dropdown -->
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-calendar"></i> This week
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" onclick="filterData('week')">This week</a></li>
+            <li><a class="dropdown-item" href="#" onclick="filterData('month')">This month</a></li>
+            <li><a class="dropdown-item" href="#" onclick="filterData('all')">All time</a></li>
+        </ul>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Assets</h5>
+                <p class="card-text display-6">{{ asset_counts.desktop + asset_counts.printer + asset_counts.server + asset_counts.other }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Available</h5>
+                <p class="card-text display-6">{{ status_counts.Available }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">In Maintenance</h5>
+                <p class="card-text display-6">{{ status_counts.Maintenance }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Out of Service</h5>
+                <p class="card-text display-6">{{ status_counts['Out of Service'] }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row">
+    <!-- Asset Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Asset Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="assetChart" width="100%" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="100%" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="text-white">Low Stock Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                <div class="list-group">
+                    {% for item in low_stock %}
+                    <a href="{{ url_for('stationery.view_stationery') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ item.item_type }} Paper</h6>
+                            <small class="text-danger">{{ item.quantity }} {{ item.unit }} remaining</small>
+                        </div>
+                        <p class="mb-1">Location: {{ item.location or 'General' }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No low stock items</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Actions Section -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>Pending Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('maintenance.view_maintenance') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Pending Maintenance</h6>
+                            <span class="badge bg-warning rounded-pill">{{ pending_maintenance }}</span>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('checkout.active_checkouts') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Active Checkouts</h6>
+                            <span class="badge bg-primary rounded-pill">{{ active_checkouts }}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Share Dashboard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="shareForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Recipient Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Asset Distribution Chart
+const assetCtx = document.getElementById('assetChart').getContext('2d');
+const assetChart = new Chart(assetCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Desktops', 'Printers', 'Servers', 'Other'],
+        datasets: [{
+            data: [
+                {{ asset_counts.desktop }},
+                {{ asset_counts.printer }},
+                {{ asset_counts.server }},
+                {{ asset_counts.other }}
+            ],
+            backgroundColor: [
+                '#4e73df',
+                '#1cc88a',
+                '#36b9cc',
+                '#f6c23e'
+            ],
+            hoverBackgroundColor: [
+                '#2e59d9',
+                '#17a673',
+                '#2c9faf',
+                '#dda20a'
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+            },
+            tooltip: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                padding: 15,
+            }
+        },
+        cutout: '80%',
+    },
+});
+
+// Status Distribution Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Available', 'In-use', 'Maintenance', 'Out of Service'],
+        datasets: [{
+            label: 'Assets',
+            data: [
+                {{ status_counts.Available }},
+                {{ status_counts['In-use'] }},
+                {{ status_counts.Maintenance }},
+                {{ status_counts['Out of Service'] }}
+            ],
+            backgroundColor: [
+                '#1cc88a',
+                '#4e73df',
+                '#f6c23e',
+                '#e74a3b'
+            ],
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Share Form Submission
+document.getElementById('shareForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+
+    fetch('/send-dashboard-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Dashboard report sent successfully!');
+            // Proper Bootstrap 5 modal hide
+            const modalEl = document.getElementById('shareModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+            }
+        } else {
+            alert('Failed to send email: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        alert('Error sending email: ' + err.message);
+    });
+});
+
+function filterData(timePeriod) {
+    window.location.href = `/dashboard?time_period=${timePeriod}`;
+}
+</script>
+{% endblock %}

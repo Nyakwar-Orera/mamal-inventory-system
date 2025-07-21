@@ -1,0 +1,52 @@
+{% extends "layouts/base.html" %}
+{% block title %}Maintenance Records{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Maintenance Records - {{ current_status }}</h2>
+
+    <div class="mb-3">
+        <a href="{{ url_for('maintenance.view_maintenance', status='Pending') }}" class="btn btn-warning btn-sm">Pending</a>
+        <a href="{{ url_for('maintenance.view_maintenance', status='In Progress') }}" class="btn btn-info btn-sm">In Progress</a>
+        <a href="{{ url_for('maintenance.view_maintenance', status='Completed') }}" class="btn btn-success btn-sm">Completed</a>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Asset</th>
+                <th>Description</th>
+                <th>Technician</th>
+                <th>Cost</th>
+                <th>Status</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in maintenance_list %}
+            <tr>
+                <td>{{ m.asset.name }}</td>
+                <td>{{ m.description }}</td>
+                <td>{{ m.technician }}</td>
+                <td>{{ m.cost or '—' }}</td>
+                <td>{{ m.status }}</td>
+                <td>{{ m.start_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ m.end_date.strftime('%Y-%m-%d') if m.end_date else '—' }}</td>
+                <td>
+                    <a href="{{ url_for('maintenance.update_maintenance', maintenance_id=m.id) }}" class="btn btn-sm btn-primary">Edit</a>
+                    {% if m.status != 'Completed' %}
+                    <form action="{{ url_for('maintenance.complete_maintenance', maintenance_id=m.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-success">Mark Complete</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="text-center">No maintenance records found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Check In Asset{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Check In Asset</h2>
+    <p><strong>Asset:</strong> {{ checkout.asset.name }} (ID: {{ checkout.asset.id }})</p>
+    <p><strong>Checked out by:</strong> {{ checkout.user.username }}</p>
+    <p><strong>Checked out on:</strong> {{ checkout.checkout_date.strftime('%Y-%m-%d') }}</p>
+
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.condition_in.label(class="form-label") }}
+            {{ form.condition_in(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control") }}
+        </div>
+        <button type="submit" class="btn btn-success">{{ form.submit.label.text }}</button>
+        <a href="{{ url_for('checkout.active_checkouts') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
