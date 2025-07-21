@@ -6,7 +6,6 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from config import Config
 
-# Initialize Flask extensions
 db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
@@ -14,20 +13,17 @@ login.login_view = 'auth.login'
 mail = Mail()
 
 def create_app(config_class=Config):
-    """Flask application factory."""
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder='../templates')  # adjust if needed
     app.config.from_object(config_class)
 
-    # 🔁 OVERRIDE: Use DATABASE_URL from environment if available
+    # Use DATABASE_URL from environment if available
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', app.config['SQLALCHEMY_DATABASE_URI'])
 
-    # Initialize extensions with app
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
 
-    # Import and register blueprints
     from app.main.routes import bp as main_bp
     from app.auth.routes import bp as auth_bp
     from app.assets.routes import bp as assets_bp
