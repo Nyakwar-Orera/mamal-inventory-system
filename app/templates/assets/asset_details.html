@@ -1,0 +1,33 @@
+<!-- templates/assets/asset_details.html -->
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Asset Details</h2>
+    <table class="table">
+        <tr><th>Name:</th><td>{{ asset.name }}</td></tr>
+        <tr><th>Serial Number:</th><td>{{ asset.serial_number }}</td></tr>
+        <tr><th>Type:</th><td>{{ asset.asset_type }}</td></tr>
+        <tr><th>Status:</th><td>{{ asset.status }}</td></tr>
+        <tr><th>Location:</th><td>{{ asset.location }}</td></tr>
+        <tr><th>Condition:</th><td>{{ asset.condition }}</td></tr>
+        <tr><th>Notes:</th><td>{{ asset.notes }}</td></tr>
+        <tr><th>Purchase Date:</th><td>{{ asset.purchase_date }}</td></tr>
+        <tr><th>Purchase Cost:</th><td>${{ "%.2f"|format(asset.purchase_cost) }}</td></tr>
+        <tr>
+            <th>QR Code:</th>
+            <td>
+                {% if asset.qr_code %}
+                    <img src="data:image/png;base64,{{ asset.qr_code }}" alt="QR Code">
+                {% else %}
+                    <em>No QR code generated</em>
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning">Edit</a>
+    <form action="{{ url_for('assets.delete_asset', asset_id=asset.id) }}" method="post" style="display:inline;">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
+    </form>
+</div>
+{% endblock %}

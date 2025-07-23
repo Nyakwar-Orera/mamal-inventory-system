@@ -1,0 +1,32 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Asset Report{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Asset Summary Report</h2>
+
+    <a href="{{ url_for('reports.export_report', report_type='assets', format='excel') }}" class="btn btn-success btn-sm">Export Excel</a>
+    <a href="{{ url_for('reports.export_report', report_type='assets', format='pdf') }}" class="btn btn-danger btn-sm">Export PDF</a>
+
+    <h4 class="mt-4">Grouped by Location & Type</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr><th>Location</th><th>Type</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for row in assets %}
+                <tr><td>{{ row.location }}</td><td>{{ row.asset_type }}</td><td>{{ row.count }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Status Distribution</h4>
+    <table class="table table-bordered">
+        <thead><tr><th>Status</th><th>Count</th></tr></thead>
+        <tbody>
+            {% for row in status_counts %}
+                <tr><td>{{ row.status }}</td><td>{{ row.count }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

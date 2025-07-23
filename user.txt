@@ -1,0 +1,103 @@
+Thanks! Since your repository is:
+
+👉 **[https://github.com/Nyakwar-Orera/Mamal-Inventory-System](https://github.com/Nyakwar-Orera/Mamal-Inventory-System)**
+and your local folder is:
+
+📁 `C:\Users\admin\Desktop\Mamal Inventory System`
+
+Let’s push your Flask app correctly to that GitHub repository.
+
+---
+
+## ✅ STEP-BY-STEP COMMANDS (WINDOWS CMD or Git Bash)
+
+### 📍 Step 1: Open Git Bash or CMD
+
+Open **Git Bash** (recommended) or **Command Prompt**.
+
+### 📍 Step 2: Navigate to Your Project Folder
+
+```bash
+cd "C:\Users\admin\Desktop\Mamal Inventory System"
+```
+
+> ✅ Use quotes because your folder name has spaces.
+
+---
+
+### 📍 Step 3: Remove Previous Git Remote (if needed)
+
+If you already pushed to a different repo earlier, remove the old link first:
+
+```bash
+git remote remove origin
+```
+
+> Skip this if you've never connected a remote before.
+
+---
+
+### 📍 Step 4: Initialize Git (if not already)
+
+```bash
+git init
+```
+
+---
+
+### 📍 Step 5: Add Your GitHub Repo as Remote
+
+```bash
+git remote add origin https://github.com/Nyakwar-Orera/Mamal-Inventory-System.git
+```
+
+---
+
+### 📍 Step 6: Add All Files
+
+```bash
+git add .
+```
+
+---
+
+### 📍 Step 7: Commit the Project
+
+```bash
+git commit -m "Initial commit - Mamal Inventory System Flask App"
+```
+
+---
+
+### 📍 Step 8: Push to GitHub
+
+```bash
+git branch -M main
+git push -u origin main
+```
+
+---
+
+### ✅ RESULT
+
+You should now see your Flask project at:
+👉 [https://github.com/Nyakwar-Orera/Mamal-Inventory-System](https://github.com/Nyakwar-Orera/Mamal-Inventory-System)
+
+---
+
+## 🔄 SHOULD YOU DELETE OLD CODE FROM GITHUB?
+
+* If the current GitHub repo (`Mamal-Inventory-System`) already has old/broken code, yes — **you can overwrite it** using the steps above.
+* The `git push -u origin main` will replace what's there **if it's empty or newly created**.
+
+If you want a **clean reset**, you can also:
+
+```bash
+git push --force origin main
+```
+
+> ⚠️ Use `--force` **only if you're sure** you want to overwrite the remote content.
+
+---
+
+Would you like me to now generate a `README.md` for your GitHub repo?

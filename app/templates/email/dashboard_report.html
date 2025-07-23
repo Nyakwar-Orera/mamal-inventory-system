@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard Report</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        h2 { color: #4e73df; }
+        .section { margin-bottom: 20px; }
+        .label { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h2>Dashboard Summary Report</h2>
+
+    <div class="section">
+        <h4>Asset Distribution</h4>
+        <ul>
+            <li>Desktops: {{ asset_counts.desktop }}</li>
+            <li>Printers: {{ asset_counts.printer }}</li>
+            <li>Servers: {{ asset_counts.server }}</li>
+            <li>Other: {{ asset_counts.other }}</li>
+            <li><strong>Total:</strong> {{ asset_counts.desktop + asset_counts.printer + asset_counts.server + asset_counts.other }}</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h4>Status Summary</h4>
+        <ul>
+            <li>Available: {{ status_counts['Available'] }}</li>
+            <li>In-use: {{ status_counts['In-use'] }}</li>
+            <li>In Maintenance: {{ status_counts['Maintenance'] }}</li>
+            <li>Out of Service: {{ status_counts['Out of Service'] }}</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h4>Stationery Low Stock</h4>
+        {% if low_stock %}
+            <ul>
+                {% for item in low_stock %}
+                    <li>{{ item.item_type }} Paper ({{ item.quantity }} {{ item.unit }}) - Location: {{ item.location or 'General' }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No items currently below threshold.</p>
+        {% endif %}
+    </div>
+
+    <div class="section">
+        <h4>Pending Items</h4>
+        <ul>
+            <li>Pending Maintenance: {{ pending_maintenance }}</li>
+            <li>Active Checkouts: {{ active_checkouts }}</li>
+        </ul>
+    </div>
+
+    <p style="color: gray;">This is an automated report from the Mamal Lab Asset Management System.</p>
+</body>
+</html>

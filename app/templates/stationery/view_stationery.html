@@ -1,0 +1,71 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Stationery Items{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Stationery Inventory</h2>
+    <a href="{{ url_for('stationery.add_stationery') }}" class="btn btn-success">Add New Stationery</a>
+</div>
+
+<!-- Filter Form -->
+<form method="get" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label for="item_type" class="form-label">Filter by Item Type</label>
+        <select name="item_type" id="item_type" class="form-select">
+            <option value="">All Types</option>
+            <option value="A4" {% if request.args.get('item_type') == 'A4' %}selected{% endif %}>A4 Paper</option>
+            <option value="A3" {% if request.args.get('item_type') == 'A3' %}selected{% endif %}>A3 Paper</option>
+            <option value="A5" {% if request.args.get('item_type') == 'A5' %}selected{% endif %}>A5 Paper</option>
+            <option value="photo_paper" {% if request.args.get('item_type') == 'photo_paper' %}selected{% endif %}>Photo Paper</option>
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <label for="location" class="form-label">Filter by Location</label>
+        <select name="location" id="location" class="form-select">
+            <option value="">Main Office</option>
+        </select>
+    </div>
+
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary me-2">Apply Filters</button>
+        <a href="{{ url_for('stationery.view_stationery') }}" class="btn btn-secondary">Reset</a>
+    </div>
+</form>
+
+<!-- Stationery Table -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Item Type</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Threshold</th>
+            <th>Location</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in stationery_items %}
+        <tr>
+            <td>{{ item.item_type }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.threshold }}</td>
+            <td>{{ item.location or "General Storage" }}</td>
+            <td>
+                <a href="{{ url_for('stationery.update_stationery', item_id=item.id) }}" class="btn btn-sm btn-primary">Update</a>
+                <form action="{{ url_for('stationery.delete_stationery', item_id=item.id) }}" method="post" style="display:inline;">
+                    <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="6" class="text-center">No stationery items found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

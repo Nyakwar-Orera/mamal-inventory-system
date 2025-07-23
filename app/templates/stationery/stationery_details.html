@@ -1,0 +1,16 @@
+{% extends 'layouts/base.html' %}
+{% block title %}Stationery Details{% endblock %}
+{% block content %}
+
+<h2>Stationery Details</h2>
+<ul class="list-group mb-3">
+    <li class="list-group-item"><strong>Item Type:</strong> {{ item.item_type }}</li>
+    <li class="list-group-item"><strong>Quantity:</strong> {{ item.quantity }}</li>
+    <li class="list-group-item"><strong>Unit:</strong> {{ item.unit }}</li>
+    <li class="list-group-item"><strong>Threshold:</strong> {{ item.threshold }}</li>
+    <li class="list-group-item"><strong>Location:</strong> {{ item.location or "General Storage" }}</li>
+</ul>
+<a href="{{ url_for('stationery.update_stationery', item_id=item.id) }}" class="btn btn-primary">Update</a>
+<a href="{{ url_for('stationery.view_stationery') }}" class="btn btn-secondary">Back</a>
+
+{% endblock %}

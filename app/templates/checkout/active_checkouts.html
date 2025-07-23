@@ -1,0 +1,35 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Active Checkouts</h2>
+    {% if checkouts %}
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Asset Name</th>
+                <th>User</th>
+                <th>Condition at Checkout</th>
+                <th>Expected Return</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for checkout in checkouts %}
+            <tr>
+                <td>{{ checkout.asset.name }}</td>
+                <td>{{ checkout.user.username }}</td>
+                <td>{{ checkout.condition_out }}</td>
+                <td>{{ checkout.expected_return.strftime('%Y-%m-%d') }}</td>
+                <td>
+                    <a href="{{ url_for('checkout.checkin_asset', checkout_id=checkout.id) }}" class="btn btn-success btn-sm">Check-in</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No active checkouts at the moment.</p>
+    {% endif %}
+</div>
+{% endblock %}
