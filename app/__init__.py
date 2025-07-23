@@ -13,18 +13,22 @@ login.login_view = 'auth.login'
 mail = Mail()
 
 def create_app(config_class=Config):
-    # Remove the template_folder argument here:
-    app = Flask(__name__)  
+    app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Use DATABASE_URL from environment if available
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', app.config['SQLALCHEMY_DATABASE_URI'])
+    # --- Use DATABASE_URL from env (Render) and fix for SQLAlchemy ---
+    db_url = os.getenv('DATABASE_URL', app.config.get('SQLALCHEMY_DATABASE_URI'))
+    if db_url and db_url.startswith('postgres://'):
+        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
+    # --- Initialize extensions ---
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
 
+    # --- Register blueprints ---
     from app.main.routes import bp as main_bp
     from app.auth.routes import bp as auth_bp
     from app.assets.routes import bp as assets_bp
@@ -43,7 +47,8 @@ def create_app(config_class=Config):
     app.register_blueprint(reports_bp, url_prefix='/reports')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
-    # Optional: print where Flask is looking for templates (debugging)
+    # Optional: log template search path (for debugging)
     print("Templates search path:", app.jinja_loader.searchpath)
 
     return app
+
