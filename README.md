@@ -1,10 +1,13 @@
 # Mamal Inventory System - Technical Documentation
 
-**Presented to:** HOD Supervisor  
-**Prepared by:** Nyakwar Orera  
-**Date:** [Submission Date]
+🌐 **Live Demo**: [https://asset-management-system-3ss8.onrender.com](https://asset-management-system-3ss8.onrender.com)
+
+**Presented to:** Supervisor Muffadal Bois  
+**Prepared by:** Patrick Ogonyo Ochanyo  
+**Date:** [23/07/2025]
 
 ---
+
 
 ## 1. Project Overview
 
