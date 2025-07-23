@@ -1,3 +1,46 @@
+# Bytecode and cache
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
 env/
+
+# Environment variables
+.env
+*.env
+
+# Flask instance folder
+instance/
+
+# Database and logs (if generated locally)
+*.sqlite3
+*.db
+*.log
+
+# IDE/editor folders
+.vscode/
+.idea/
+
+# Mac/Windows system files
+.DS_Store
+Thumbs.db
+
+# Compiled C extensions (e.g. from PIL, greenlet)
+*.so
+*.dll
+*.pyd
+*.dylib
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Node modules (if you ever add frontend stuff)
+node_modules/
