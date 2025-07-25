@@ -1,4 +1,3 @@
-<!-- templates/assets/asset_details.html -->
 {% extends 'layouts/base.html' %}
 
 {% block content %}
@@ -25,6 +24,31 @@
             </td>
         </tr>
     </table>
+
+    {% if asset.components.count() > 0 %}
+    <h3>Linked Components</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Serial Number</th>
+                <th>Type</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for comp in asset.components %}
+            <tr>
+                <td>{{ comp.name }}</td>
+                <td>{{ comp.serial_number }}</td>
+                <td>{{ comp.asset_type }}</td>
+                <td>{{ comp.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
     <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning">Edit</a>
     <form action="{{ url_for('assets.delete_asset', asset_id=asset.id) }}" method="post" style="display:inline;">
         <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
