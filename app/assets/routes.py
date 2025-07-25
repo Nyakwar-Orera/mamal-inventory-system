@@ -4,7 +4,7 @@ from app import db
 from app.models import Asset
 from app.assets import bp
 from app.assets.forms import AssetFilterForm, AssetForm
-from app.utils import generate_qr_code
+import uuid  # Import UUID for unique string generation
 
 # View all assets (with optional filtering)
 @bp.route('/')
@@ -60,8 +60,8 @@ def add_asset():
         db.session.add(asset)
         db.session.commit()
 
-        # Generate QR code after getting ID
-        asset.qr_code = generate_qr_code(asset.id, asset.name, asset.serial_number)
+        # Assign a unique UUID string instead of generating QR code image
+        asset.qr_code = str(uuid.uuid4())
         db.session.commit()
 
         # Auto-create complimentary assets only for desktops and laptops
@@ -102,7 +102,8 @@ def edit_asset(asset_id):
     form = AssetForm(obj=asset)
     if form.validate_on_submit():
         form.populate_obj(asset)
-        asset.qr_code = generate_qr_code(asset.id, asset.name, asset.serial_number)
+        # Update qr_code with a new UUID string on edit (optional, or you can skip)
+        asset.qr_code = str(uuid.uuid4())
         db.session.commit()
         flash('Asset updated successfully!', 'success')
         return redirect(url_for('assets.asset_details', asset_id=asset.id))
