@@ -16,27 +16,22 @@ class User(UserMixin, db.Model):
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
-        """Set the password hash."""
         self.password_hash = generate_password_hash(password)
     
     def check_password(self, password):
-        """Check the password hash."""
         return check_password_hash(self.password_hash, password)
     
     def __repr__(self):
         return f'<User {self.username}>'
 
     def deactivate(self):
-        """Deactivate the user account (soft delete)."""
         self.is_active = False
         db.session.commit()
     
     def reactivate(self):
-        """Reactivate a deactivated user account."""
         self.is_active = True
         db.session.commit()
 
-    # Password reset methods
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
             {'reset_password': self.id, 'exp': time() + expires_in},
@@ -66,6 +61,10 @@ class Asset(db.Model):
     notes = db.Column(db.Text)
     qr_code = db.Column(db.String(100))
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # New parent-child relationship
+    parent_id = db.Column(db.Integer, db.ForeignKey('asset.id'), nullable=True)
+    components = db.relationship('Asset', backref=db.backref('parent', remote_side=[id]), lazy='dynamic')
 
     maintenance = db.relationship('Maintenance', backref='asset', lazy='dynamic')
     checkouts = db.relationship('Checkout', backref='asset', lazy='dynamic')
@@ -117,7 +116,6 @@ class Checkout(db.Model):
     def __repr__(self):
         return f'<Checkout {self.asset_id} by {self.user_id}>'
 
-# User Loader function for Flask-Login
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
