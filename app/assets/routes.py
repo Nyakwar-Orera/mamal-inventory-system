@@ -65,7 +65,7 @@ def add_asset():
         db.session.commit()
 
         # Auto-create complimentary assets only for desktops and laptops
-        if asset.asset_type in ['desktop', 'laptop']:
+        if asset.asset_type.lower() in ['desktop', 'laptop']:
             compliments = [
                 ('Monitor', 'monitor', 'monitor'),
                 ('Keyboard', 'keyboard', 'keyboard'),
@@ -83,7 +83,8 @@ def add_asset():
                     location=form.location.data,
                     status='Available',
                     condition='New',
-                    notes=f"Complimentary asset for {asset.name}"
+                    notes=f"Complimentary asset for {asset.name}",
+                    parent_id=asset.id  # Link component to main asset here
                 )
                 db.session.add(comp_asset)
             db.session.commit()
