@@ -20,7 +20,7 @@ class StationeryForm(FlaskForm):
     quantity = IntegerField('Initial Quantity', validators=[DataRequired(), NumberRange(min=0)])
     
     unit = SelectField('Unit', choices=[
-        ('reams', 'Reams (500 sheets)'),
+        ('boxes', 'Boxes'),
         ('pieces', 'Pieces')  # Allowing "pieces" for countable items like Staplers, Pins, Paper Punches
     ], validators=[DataRequired()])
     
