@@ -9,12 +9,14 @@ services:
       - key: FLASK_ENV
         value: production
       - key: SECRET_KEY
-        value: your-production-secret-key
+        value: your-secret-key
       - key: MAIL_USERNAME
         value: your-email@gmail.com
       - key: MAIL_PASSWORD
-        value: your-gmail-app-password
+        value: your-app-password
       - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: ADMINS
         value: admin@example.com
       - key: DATABASE_URL
         fromDatabase:
