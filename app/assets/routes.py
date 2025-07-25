@@ -45,6 +45,7 @@ def asset_details(asset_id):
 def add_asset():
     form = AssetForm()
     if form.validate_on_submit():
+        # Create the main asset (computer, TV, printer, etc.)
         asset = Asset(
             name=form.name.data,
             serial_number=form.serial_number.data,
@@ -62,6 +63,30 @@ def add_asset():
         # Generate QR code after getting ID
         asset.qr_code = generate_qr_code(asset.id, asset.name, asset.serial_number)
         db.session.commit()
+
+        # Auto-create complimentary assets only for desktops and laptops
+        if asset.asset_type in ['desktop', 'laptop']:
+            compliments = [
+                ('Monitor', 'monitor', 'monitor'),
+                ('Keyboard', 'keyboard', 'keyboard'),
+                ('Mouse', 'mouse', 'mouse'),
+                ('CPU', 'cpu', 'cpu')
+            ]
+            for comp_name, comp_type_value, serial_suffix in compliments:
+                comp_serial = f"{asset.serial_number}-{serial_suffix}"
+                comp_asset = Asset(
+                    name=f"{comp_name} for {asset.name}",
+                    serial_number=comp_serial,
+                    asset_type=comp_type_value,
+                    purchase_date=form.purchase_date.data,
+                    purchase_cost=0.0,
+                    location=form.location.data,
+                    status='Available',
+                    condition='New',
+                    notes=f"Complimentary asset for {asset.name}"
+                )
+                db.session.add(comp_asset)
+            db.session.commit()
 
         flash('Asset added successfully!', 'success')
         return redirect(url_for('assets.view_assets'))
