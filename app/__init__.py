@@ -14,18 +14,18 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # --- Use DATABASE_URL from env (Render) and fix for SQLAlchemy ---
+    # Fix DATABASE_URL for Render
     db_url = os.getenv('DATABASE_URL', app.config.get('SQLALCHEMY_DATABASE_URI'))
     if db_url and db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
-    # --- Initialize extensions ---
+    # Initialize extensions
     db.init_app(app)
     login.init_app(app)
     mail.init_app(app)
 
-    # --- Register blueprints ---
+    # Register blueprints
     from app.main.routes import bp as main_bp
     from app.auth.routes import bp as auth_bp
     from app.assets.routes import bp as assets_bp
