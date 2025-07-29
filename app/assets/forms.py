@@ -1,5 +1,10 @@
+# app/assets/forms.py
+
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateField, FloatField, TextAreaField, SubmitField
+from wtforms import (
+    StringField, SelectField, DateField,
+    FloatField, TextAreaField, SubmitField
+)
 from wtforms.validators import DataRequired, Optional
 from datetime import date
 
@@ -34,7 +39,7 @@ class AssetForm(FlaskForm):
         ('Scissors', 'Scissors')
     ], validators=[DataRequired()])
 
-    # New component serial number fields
+    # Optional component serial number fields (visible for desktop/laptop)
     monitor_serial = StringField('Monitor Serial Number', validators=[Optional()])
     keyboard_serial = StringField('Keyboard Serial Number', validators=[Optional()])
     mouse_serial = StringField('Mouse Serial Number', validators=[Optional()])
@@ -62,3 +67,23 @@ class AssetForm(FlaskForm):
     notes = TextAreaField('Notes', validators=[Optional()])
 
     submit = SubmitField('Save')
+
+
+class AssetFilterForm(FlaskForm):
+    location = SelectField('Location', choices=[
+        ('', 'All'),
+        ('Mamal Boys Lab', 'Mamal Boys Lab'),
+        ('Mamal Girls Lab', 'Mamal Girls Lab'),
+        ('Masakin', 'Masakin'),
+        ('Rabwat', 'Rabwat')
+    ], validators=[Optional()])
+
+    status = SelectField('Status', choices=[
+        ('', 'All'),
+        ('Available', 'Available'),
+        ('In-use', 'In-use'),
+        ('Maintenance', 'Maintenance'),
+        ('Out of Service', 'Out of Service')
+    ], validators=[Optional()])
+
+    submit = SubmitField('Filter')
