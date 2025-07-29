@@ -4,11 +4,12 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Asset List</h2>
+    <h2 class="mb-4">Asset List</h2>
 
     <!-- Filter + Search Form -->
     <form method="get" class="row g-3 align-items-end mb-4">
         {{ filter_form.hidden_tag() }}
+
         <div class="col-md-3">
             {{ filter_form.location.label(class="form-label") }}
             {{ filter_form.location(class="form-select") }}
@@ -26,18 +27,9 @@
         </div>
     </form>
 
-    <!-- Bulk Actions -->
-    <div class="mb-3 d-flex justify-content-between align-items-center">
-        <div>
-            <button class="btn btn-outline-secondary btn-sm">📤 Export</button>
-            <button class="btn btn-outline-secondary btn-sm">🖨️ Print</button>
-        </div>
-        <small class="text-muted">Total: {{ assets.total }}</small>
-    </div>
-
     <!-- Asset Table -->
     <div class="table-responsive">
-        <table class="table table-hover align-middle">
+        <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
                 <tr>
                     <th>Name</th>
@@ -49,63 +41,42 @@
                 </tr>
             </thead>
             <tbody>
-                {% for asset in assets.items %}
-                <tr class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#details{{ asset.id }}" aria-expanded="false" aria-controls="details{{ asset.id }}">
+            {% for asset in assets.items %}
+                <tr>
                     <td>{{ asset.name }}</td>
                     <td>{{ asset.serial_number }}</td>
+                    <td>{{ asset.asset_type }}</td>
                     <td>
-                        {% if asset.asset_type == 'desktop' %}🖥️ Desktop
-                        {% elif asset.asset_type == 'laptop' %}💻 Laptop
-                        {% elif asset.asset_type == 'printer' %}📠 Printer
-                        {% else %}📦 {{ asset.asset_type | title }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        <span class="badge
+                        <span class="badge 
                             {% if asset.status == 'Available' %} bg-success
                             {% elif asset.status == 'In-use' %} bg-primary
                             {% elif asset.status == 'Maintenance' %} bg-warning text-dark
                             {% elif asset.status == 'Out of Service' %} bg-danger
-                            {% endif %}">
+                            {% else %} bg-secondary
+                            {% endif %}
+                        ">
                             {{ asset.status }}
                         </span>
                     </td>
                     <td>{{ asset.location }}</td>
-                    <td>
+                    <td class="d-flex flex-column gap-1">
                         <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
                         <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
 
                         {% if asset.status == 'Available' %}
-                            <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm mt-1">📦 Checkout</a>
+                            <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm">📦 Checkout</a>
                         {% endif %}
 
-                        {% if asset.status not in ['Maintenance', 'Out of Service'] %}
-                            <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm mt-1">🛠️ Maintenance</a>
+                        {% if asset.status != 'Maintenance' and asset.status != 'Out of Service' %}
+                            <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm">🛠️ Add Maintenance</a>
                         {% else %}
-                            <span class="badge bg-secondary mt-1">Under Maintenance</span>
+                            <span class="badge bg-secondary">Under Maintenance</span>
                         {% endif %}
                     </td>
                 </tr>
-                <tr class="collapse bg-light" id="details{{ asset.id }}">
-                    <td colspan="6">
-                        {% if asset.asset_type == 'desktop' %}
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</li>
-                            <li class="list-group-item"><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</li>
-                            <li class="list-group-item"><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</li>
-                            <li class="list-group-item"><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</li>
-                            <li class="list-group-item"><strong>Main Serial:</strong> {{ asset.serial_number }}</li>
-                            <li class="list-group-item"><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</li>
-                            <li class="list-group-item"><strong>Notes:</strong> {{ asset.notes or 'None' }}</li>
-                        </ul>
-                        {% else %}
-                        <p class="text-muted">Serial: {{ asset.serial_number }}<br>Condition: {{ asset.condition or 'N/A' }}<br>Notes: {{ asset.notes or 'None' }}</p>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
+            {% else %}
                 <tr><td colspan="6" class="text-center">No assets found.</td></tr>
-                {% endfor %}
+            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -115,13 +86,13 @@
         <ul class="pagination justify-content-center">
             {% if assets.has_prev %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num) }}">Previous</a>
+                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num, **request.args.to_dict()) }}">Previous</a>
                 </li>
             {% endif %}
             <li class="page-item disabled"><span class="page-link">Page {{ assets.page }} of {{ assets.pages }}</span></li>
             {% if assets.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num) }}">Next</a>
+                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num, **request.args.to_dict()) }}">Next</a>
                 </li>
             {% endif %}
         </ul>
