@@ -21,10 +21,10 @@
     </form>
 
     <!-- Asset Table -->
-    <table class="table table-bordered table-hover">
+    <table class="table table-bordered table-hover align-middle">
         <thead class="table-light">
             <tr>
-                <th>Name</th>
+                <th>Name & Components</th>
                 <th>Type</th>
                 <th>Status</th>
                 <th>Location</th>
@@ -33,12 +33,19 @@
         </thead>
         <tbody>
         {% for asset in assets.items %}
-            <tr data-bs-toggle="collapse" data-bs-target="#details-{{ asset.id }}" aria-expanded="false" aria-controls="details-{{ asset.id }}" style="cursor: pointer;">
+            <tr>
                 <td>
+                    <strong>{{ asset.name }}</strong>
                     {% if asset.asset_type == 'desktop' %}
-                        <strong>{{ asset.name }}</strong> <span class="text-muted">(click to expand)</span>
-                    {% else %}
-                        {{ asset.name }}
+                        <div class="ms-3 mt-2 small text-muted">
+                            <div><strong>Serial:</strong> {{ asset.serial_number }}</div>
+                            <div><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</div>
+                            <div><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</div>
+                            <div><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</div>
+                            <div><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</div>
+                            <div><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</div>
+                            <div><strong>Notes:</strong> {{ asset.notes or 'None' }}</div>
+                        </div>
                     {% endif %}
                 </td>
                 <td>{{ asset.asset_type }}</td>
@@ -73,20 +80,6 @@
                     {% endif %}
                 </td>
             </tr>
-
-            {% if asset.asset_type == 'desktop' %}
-            <tr class="collapse" id="details-{{ asset.id }}">
-                <td colspan="5">
-                    <strong>Serial:</strong> {{ asset.serial_number }}<br>
-                    <strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}<br>
-                    <strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}<br>
-                    <strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}<br>
-                    <strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}<br>
-                    <strong>Condition:</strong> {{ asset.condition or 'N/A' }}<br>
-                    <strong>Notes:</strong> {{ asset.notes or 'None' }}
-                </td>
-            </tr>
-            {% endif %}
         {% else %}
             <tr><td colspan="5" class="text-center">No assets found.</td></tr>
         {% endfor %}
@@ -106,7 +99,4 @@
         </ul>
     </nav>
 </div>
-
-<!-- Include Bootstrap's JS for collapse -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
