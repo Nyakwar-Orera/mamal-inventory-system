@@ -1,51 +1,71 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %}Add New Asset - MAMAL{% endblock %}
-
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Add New Asset</h4>
-        </div>
-        <div class="card-body">
-            <form method="POST">
-                {{ form.hidden_tag() }}
+<div class="container mt-4">
+    <h2 class="mb-4">Add New Asset</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
 
-                <div class="row">
-                    {% for field in form if field.name != 'submit' %}
-                        <div class="col-md-6 mb-3">
-                            <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
-                            {{ field(class="form-control select2" if field.type == 'SelectField' else "form-control") }}
-                            {% if field.errors %}
-                                <div class="text-danger small mt-1">{{ field.errors[0] }}</div>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+        <div class="row">
+            {% for field in form if field.name not in ['submit', 'monitor_serial', 'keyboard_serial', 'mouse_serial', 'cpu_serial'] %}
+                <div class="col-md-6 mb-3">
+                    <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
+                    {{ field(class="form-control select2" if field.type == 'SelectField' else "form-control") }}
+                    {% if field.errors %}
+                        <div class="text-danger small mt-1">{{ field.errors[0] }}</div>
+                    {% endif %}
                 </div>
-
-                <div class="d-flex justify-content-end">
-                    {{ form.submit(class="btn btn-success px-4") }}
-                </div>
-            </form>
+            {% endfor %}
         </div>
-    </div>
+
+        <!-- Component Serial Fields -->
+        <div id="component-serial-section" class="border p-3 rounded mb-4" style="display: none;">
+            <h5 class="mb-3">Component Serial Numbers</h5>
+            <div class="row">
+                {% for field in [form.monitor_serial, form.keyboard_serial, form.mouse_serial, form.cpu_serial] %}
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
+                        {{ field(class="form-control") }}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {{ form.submit(class="btn btn-primary") }}
+    </form>
 </div>
 {% endblock %}
 
-{% block styles %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{% endblock %}
-
 {% block scripts %}
+<!-- Include Select2 CSS and JS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 <script>
-    $(document).ready(function () {
-        $('.select2').select2({
-            width: '100%',
-            placeholder: 'Select an option',
-            allowClear: true
+    $(document).ready(function() {
+        $('.select2').select2({ width: '100%' });
+
+        // Function to show/hide component fields
+        function toggleComponentSection() {
+            const assetType = $('#{{ form.asset_type.id }}').val();
+            if (assetType === 'desktop' || assetType === 'laptop') {
+                $('#component-serial-section').slideDown();
+            } else {
+                $('#component-serial-section').slideUp();
+                $('#component-serial-section input').val('');
+            }
+        }
+
+        // Initial check
+        toggleComponentSection();
+
+        // Change event
+        $('#{{ form.asset_type.id }}').on('change', function () {
+            toggleComponentSection();
         });
     });
 </script>
