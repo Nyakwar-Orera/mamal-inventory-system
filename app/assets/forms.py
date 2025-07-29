@@ -1,6 +1,5 @@
-# forms.py
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, TextAreaField, DecimalField, DateField, SubmitField
+from wtforms import StringField, SelectField, DateField, FloatField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Optional
 from datetime import date
 
@@ -35,8 +34,14 @@ class AssetForm(FlaskForm):
         ('Scissors', 'Scissors')
     ], validators=[DataRequired()])
 
+    # New component serial number fields
+    monitor_serial = StringField('Monitor Serial Number', validators=[Optional()])
+    keyboard_serial = StringField('Keyboard Serial Number', validators=[Optional()])
+    mouse_serial = StringField('Mouse Serial Number', validators=[Optional()])
+    cpu_serial = StringField('CPU Serial Number', validators=[Optional()])
+
     purchase_date = DateField('Purchase Date', default=date.today, validators=[Optional()])
-    purchase_cost = DecimalField('Purchase Cost', places=2, validators=[Optional()])
+    purchase_cost = FloatField('Purchase Cost', validators=[Optional()])
 
     location = SelectField('Location', choices=[
         ('', 'Select Location'),
@@ -55,10 +60,5 @@ class AssetForm(FlaskForm):
 
     condition = StringField('Condition', validators=[Optional()])
     notes = TextAreaField('Notes', validators=[Optional()])
-
-    monitor_serial = StringField('Monitor Serial', validators=[Optional()])
-    keyboard_serial = StringField('Keyboard Serial', validators=[Optional()])
-    mouse_serial = StringField('Mouse Serial', validators=[Optional()])
-    cpu_serial = StringField('CPU Serial', validators=[Optional()])
 
     submit = SubmitField('Save')
