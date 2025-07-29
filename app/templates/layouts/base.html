@@ -13,7 +13,7 @@
 
 <body class="d-flex flex-column min-vh-100">
 
-{% set hide_nav = request.endpoint in ['auth.login', 'main.index'] %}
+{% set hide_nav = request.endpoint in ['auth.login', 'auth.register', 'main.index'] %}
 
 {% if not hide_nav %}
 <!-- Navbar -->
@@ -56,7 +56,6 @@
                 </li>
 
                 {% if current_user.is_authenticated and current_user.role == 'admin' %}
-                <!-- Admin-specific Links -->
                 <li class="nav-item"><a class="nav-link" href="{{ url_for('admin.manage_users') }}">Manage Users</a></li>
                 {% endif %}
 
