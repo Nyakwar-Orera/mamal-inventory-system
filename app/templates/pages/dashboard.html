@@ -1,5 +1,5 @@
 {% extends "layouts/base.html" %}
-
+<div style="background-image: url('/static/image/aljameaB.jpg'); background-size: cover; background-repeat: no-repeat; background-attachment: fixed; background-position: center; min-height: 100vh; padding: 20px;">
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
@@ -291,4 +291,5 @@ function filterData(timePeriod) {
     window.location.href = `/dashboard?time_period=${timePeriod}`;
 }
 </script>
+</div>
 {% endblock %}
