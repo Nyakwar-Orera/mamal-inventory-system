@@ -2,11 +2,40 @@
 
 {% block title %}MAMAL Inventory System{% endblock %}
 
+{% block styles %}
+<style>
+  .moving-title {
+    color: #007bff; /* Bootstrap primary blue */
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    animation: slide 8s linear infinite;
+    white-space: nowrap;
+  }
+
+  @keyframes slide {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .title-container {
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="d-flex justify-content-center align-items-center vh-100">
   <div class="col-md-6 col-lg-4">
     <div class="card shadow-lg">
       <div class="card-body text-center">
+
+        <!-- Moving System Title -->
+        <div class="title-container">
+          <div class="moving-title">MAMAL Inventory System</div>
+        </div>
 
         <!-- Avatar Section -->
         <div class="mb-4">
@@ -27,6 +56,7 @@
           {% endif %}
         {% endwith %}
 
+        <!-- Login / Register Buttons -->
         <div class="d-grid gap-2">
           <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Login</a>
           <a href="{{ url_for('auth.register') }}" class="btn btn-outline-primary">Register</a>
