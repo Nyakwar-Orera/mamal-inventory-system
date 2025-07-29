@@ -26,18 +26,22 @@
         <thead class="table-light">
             <tr>
                 <th>Name</th>
-                <th>Serial</th>
                 <th>Type</th>
                 <th>Status</th>
                 <th>Location</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
         {% for asset in assets.items %}
-            <tr>
-                <td>{{ asset.name }}</td>
-                <td>{{ asset.serial_number }}</td>
+            <tr data-bs-toggle="collapse" data-bs-target="#details-{{ asset.id }}" aria-expanded="false" aria-controls="details-{{ asset.id }}" style="cursor: pointer;">
+                <td>
+                    {% if asset.asset_type == 'desktop' %}
+                        <strong>{{ asset.name }}</strong> <span class="text-muted">(click to expand)</span>
+                    {% else %}
+                        {{ asset.name }}
+                    {% endif %}
+                </td>
                 <td>{{ asset.asset_type }}</td>
                 <td>
                     <span class="badge 
@@ -52,18 +56,15 @@
                 </td>
                 <td>{{ asset.location }}</td>
                 <td>
-                    <!-- View and Edit -->
                     <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
                     <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
 
-                    <!-- Checkout Button: Only show if Available -->
                     {% if asset.status == 'Available' %}
                         <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm mt-1" title="Check Out">
                             📦 Checkout
                         </a>
                     {% endif %}
 
-                    <!-- Maintenance Button -->
                     {% if asset.status != 'Maintenance' and asset.status != 'Out of Service' %}
                         <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm mt-1" title="Add Maintenance">
                             🛠️ Add Maintenance
@@ -73,8 +74,22 @@
                     {% endif %}
                 </td>
             </tr>
+
+            {% if asset.asset_type == 'desktop' %}
+            <tr class="collapse" id="details-{{ asset.id }}">
+                <td colspan="5">
+                    <strong>Serial:</strong> {{ asset.serial_number }}<br>
+                    <strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}<br>
+                    <strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}<br>
+                    <strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}<br>
+                    <strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}<br>
+                    <strong>Condition:</strong> {{ asset.condition or 'N/A' }}<br>
+                    <strong>Notes:</strong> {{ asset.notes or 'None' }}
+                </td>
+            </tr>
+            {% endif %}
         {% else %}
-            <tr><td colspan="6" class="text-center">No assets found.</td></tr>
+            <tr><td colspan="5" class="text-center">No assets found.</td></tr>
         {% endfor %}
         </tbody>
     </table>
@@ -92,4 +107,7 @@
         </ul>
     </nav>
 </div>
+
+<!-- Include Bootstrap's JS for collapse -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
