@@ -4,8 +4,15 @@
 
 {% block styles %}
 <style>
+  body {
+    background-image: url('{{ url_for('static', filename='images/aljameaB.jpg') }}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
   .moving-title {
-    color: #007bff; /* Bootstrap primary blue */
+    color: #007bff;
     font-weight: bold;
     text-transform: uppercase;
     font-size: 1.5rem;
@@ -31,6 +38,11 @@
   <div class="col-md-6 col-lg-4">
     <div class="card shadow-lg">
       <div class="card-body text-center">
+
+        <!-- Logo -->
+        <div class="mb-4">
+          <img src="{{ url_for('static', filename='images/aljamea.jpg') }}" alt="MAMAL Logo" class="img-fluid" style="max-height: 80px;">
+        </div>
 
         <!-- Moving System Title -->
         <div class="title-container">
