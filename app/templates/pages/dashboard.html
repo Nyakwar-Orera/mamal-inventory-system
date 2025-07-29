@@ -1,158 +1,294 @@
-{% extends 'layouts/base.html' %}
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">MAMAL Inventory Dashboard</h2>
-        <form method="post" action="/dashboard/send" id="sendForm">
-            <button type="submit" class="btn btn-success" id="sendButton">
-                <i class="bi bi-envelope-fill me-2"></i>Send This Report
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <!-- Share Button -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                Share
             </button>
-        </form>
-    </div>
-
-    <!-- Export and Filters -->
-    <div class="mb-4 d-flex flex-wrap gap-3 align-items-center">
-        <button class="btn btn-outline-secondary" onclick="window.print()">
-            <i class="bi bi-printer"></i> Print
+            <!-- Export Button -->
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.href='/export-dashboard'">
+                Export
+            </button>
+        </div>
+        <!-- Time Filter Dropdown -->
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-calendar"></i> This week
         </button>
-        <a href="/dashboard/export/excel" class="btn btn-outline-success">
-            <i class="bi bi-file-earmark-excel"></i> Export Excel
-        </a>
-
-        <form method="get" class="d-flex flex-wrap gap-2 ms-auto">
-            <select name="location" class="form-select w-auto">
-                <option value="">All Locations</option>
-                {% for loc in locations %}
-                    <option value="{{ loc }}">{{ loc }}</option>
-                {% endfor %}
-            </select>
-            <select name="status" class="form-select w-auto">
-                <option value="">All Statuses</option>
-                <option value="Available">Available</option>
-                <option value="Checked Out">Checked Out</option>
-                <option value="Maintenance">Maintenance</option>
-            </select>
-            <button type="submit" class="btn btn-outline-primary">Apply Filters</button>
-        </form>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#" onclick="filterData('week')">This week</a></li>
+            <li><a class="dropdown-item" href="#" onclick="filterData('month')">This month</a></li>
+            <li><a class="dropdown-item" href="#" onclick="filterData('all')">All time</a></li>
+        </ul>
     </div>
+</div>
 
-    <!-- Summary Cards -->
-    <div class="row g-4 mb-4">
-        {% for card in summary_cards %}
-        <div class="col-md-3 col-sm-6 animate__animated animate__fadeIn">
-            <div class="card border-0 shadow rounded-4 text-white bg-{{ card.color }}">
-                <div class="card-body">
-                    <h6 class="card-subtitle mb-1">{{ card.title }}</h6>
-                    <h3 class="fw-bold">{{ card.count }}</h3>
-                    <div class="small">{{ card.percentage_change }}% since last month</div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Charts Section -->
-    <div class="row g-4">
-        <div class="col-md-6">
-            <div class="card rounded-4 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Assets by Location</h5>
-                    <canvas id="locationChart" role="img" aria-label="Bar chart showing number of assets per location"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card rounded-4 shadow">
-                <div class="card-body">
-                    <h5 class="card-title">Assets by Status</h5>
-                    <canvas id="statusChart" role="img" aria-label="Doughnut chart showing asset statuses"></canvas>
-                </div>
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Assets</h5>
+                <p class="card-text display-6">{{ asset_counts.desktop + asset_counts.printer + asset_counts.server + asset_counts.other }}</p>
             </div>
         </div>
     </div>
-
-    <!-- Recent Activity Table -->
-    <div class="card mt-4 shadow rounded-4">
-        <div class="card-body">
-            <h5 class="card-title">Recent Activity</h5>
-            <table class="table table-sm">
-                <thead>
-                    <tr>
-                        <th>Asset</th>
-                        <th>Action</th>
-                        <th>User</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in recent_activity %}
-                    <tr>
-                        <td>{{ item.asset }}</td>
-                        <td>{{ item.action }}</td>
-                        <td>{{ item.user }}</td>
-                        <td>{{ item.timestamp.strftime('%Y-%m-%d') }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Available</h5>
+                <p class="card-text display-6">{{ status_counts.Available }}</p>
+            </div>
         </div>
     </div>
-
-    <!-- Toast for success message -->
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body">
-                    ✅ Report sent successfully!
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">In Maintenance</h5>
+                <p class="card-text display-6">{{ status_counts.Maintenance }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Out of Service</h5>
+                <p class="card-text display-6">{{ status_counts['Out of Service'] }}</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Chart JS + Animation JS -->
+<!-- Charts -->
+<div class="row">
+    <!-- Asset Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Asset Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="assetChart" width="100%" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status Distribution Chart -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="100%" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Low Stock Alerts Section -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-warning">
+                <h5 class="text-white">Low Stock Alerts</h5>
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                <div class="list-group">
+                    {% for item in low_stock %}
+                    <a href="{{ url_for('stationery.view_stationery') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ item.item_type }} Paper</h6>
+                            <small class="text-danger">{{ item.quantity }} {{ item.unit }} remaining</small>
+                        </div>
+                        <p class="mb-1">Location: {{ item.location or 'General' }}</p>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No low stock items</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Actions Section -->
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5>Pending Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <a href="{{ url_for('maintenance.view_maintenance') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Pending Maintenance</h6>
+                            <span class="badge bg-warning rounded-pill">{{ pending_maintenance }}</span>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('checkout.active_checkouts') }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">Active Checkouts</h6>
+                            <span class="badge bg-primary rounded-pill">{{ active_checkouts }}</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="shareModalLabel">Share Dashboard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="shareForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Recipient Email</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></script>
-
 <script>
-    const locationCtx = document.getElementById('locationChart').getContext('2d');
-    const statusCtx = document.getElementById('statusChart').getContext('2d');
-
-    const locationChart = new Chart(locationCtx, {
-        type: 'bar',
-        data: {{ location_chart_data | safe }},
-        options: { responsive: true, plugins: { legend: { display: false } } }
-    });
-
-    const statusChart = new Chart(statusCtx, {
-        type: 'doughnut',
-        data: {{ status_chart_data | safe }},
-        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
-    });
-
-    document.getElementById("sendForm").addEventListener("submit", function(e) {
-        e.preventDefault();
-        const button = document.getElementById("sendButton");
-        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...';
-        button.disabled = true;
-
-        fetch("/dashboard/send", {
-            method: "POST",
-        })
-        .then(response => response.json())
-        .then(data => {
-            button.innerHTML = '<i class="bi bi-envelope-fill me-2"></i>Send This Report';
-            button.disabled = false;
-            if (data.success) {
-                const toast = new bootstrap.Toast(document.getElementById('successToast'));
-                toast.show();
-            } else {
-                alert("Something went wrong!");
+// Asset Distribution Chart
+const assetCtx = document.getElementById('assetChart').getContext('2d');
+const assetChart = new Chart(assetCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Desktops', 'Printers', 'Servers', 'Other'],
+        datasets: [{
+            data: [
+                {{ asset_counts.desktop }},
+                {{ asset_counts.printer }},
+                {{ asset_counts.server }},
+                {{ asset_counts.other }}
+            ],
+            backgroundColor: [
+                '#4e73df',
+                '#1cc88a',
+                '#36b9cc',
+                '#f6c23e'
+            ],
+            hoverBackgroundColor: [
+                '#2e59d9',
+                '#17a673',
+                '#2c9faf',
+                '#dda20a'
+            ],
+            hoverBorderColor: "rgba(234, 236, 244, 1)",
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'right',
+            },
+            tooltip: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                padding: 15,
             }
-        });
+        },
+        cutout: '80%',
+    },
+});
+
+// Status Distribution Chart
+const statusCtx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(statusCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Available', 'In-use', 'Maintenance', 'Out of Service'],
+        datasets: [{
+            label: 'Assets',
+            data: [
+                {{ status_counts.Available }},
+                {{ status_counts['In-use'] }},
+                {{ status_counts.Maintenance }},
+                {{ status_counts['Out of Service'] }}
+            ],
+            backgroundColor: [
+                '#1cc88a',
+                '#4e73df',
+                '#f6c23e',
+                '#e74a3b'
+            ],
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+// Share Form Submission
+document.getElementById('shareForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+
+    fetch('/send-dashboard-email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: email }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Dashboard report sent successfully!');
+            // Proper Bootstrap 5 modal hide
+            const modalEl = document.getElementById('shareModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) {
+                modal.hide();
+            }
+        } else {
+            alert('Failed to send email: ' + (data.error || 'Unknown error'));
+        }
+    })
+    .catch(err => {
+        alert('Error sending email: ' + err.message);
     });
+});
+
+function filterData(timePeriod) {
+    window.location.href = `/dashboard?time_period=${timePeriod}`;
+}
 </script>
 {% endblock %}
