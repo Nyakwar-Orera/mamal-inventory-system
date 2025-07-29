@@ -21,80 +21,70 @@
     </form>
 
     <!-- Asset Table -->
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Name & Components</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Location</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
+    <div class="accordion" id="assetAccordion">
         {% for asset in assets.items %}
-            <tr>
-                <td>
-                    <strong>{{ asset.name }}</strong>
+        <div class="accordion-item mb-2">
+            <h2 class="accordion-header" id="heading{{ asset.id }}">
+                <button class="accordion-button {% if asset.asset_type != 'desktop' %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ asset.id }}" aria-expanded="{% if asset.asset_type == 'desktop' %}true{% else %}false{% endif %}" aria-controls="collapse{{ asset.id }}">
+                    <div class="d-flex flex-column">
+                        <strong>{{ asset.name }}</strong>
+                        <small class="text-muted">{{ asset.asset_type | title }} — {{ asset.status }} — {{ asset.location }}</small>
+                    </div>
+                </button>
+            </h2>
+            <div id="collapse{{ asset.id }}" class="accordion-collapse collapse {% if asset.asset_type == 'desktop' %}show{% endif %}" aria-labelledby="heading{{ asset.id }}" data-bs-parent="#assetAccordion">
+                <div class="accordion-body">
+
                     {% if asset.asset_type == 'desktop' %}
-                        <div class="ms-3 mt-2 small text-muted">
-                            <div><strong>Serial:</strong> {{ asset.serial_number }}</div>
-                            <div><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</div>
-                            <div><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</div>
-                            <div><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</div>
-                            <div><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</div>
-                            <div><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</div>
-                            <div><strong>Notes:</strong> {{ asset.notes or 'None' }}</div>
-                        </div>
-                    {% endif %}
-                </td>
-                <td>{{ asset.asset_type }}</td>
-                <td>
-                    <span class="badge 
-                        {% if asset.status == 'Available' %} bg-success
-                        {% elif asset.status == 'In-use' %} bg-primary
-                        {% elif asset.status == 'Maintenance' %} bg-warning text-dark
-                        {% elif asset.status == 'Out of Service' %} bg-danger
-                        {% endif %}
-                    ">
-                        {{ asset.status }}
-                    </span>
-                </td>
-                <td>{{ asset.location }}</td>
-                <td>
-                    <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
-                    <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
-
-                    {% if asset.status == 'Available' %}
-                        <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm mt-1" title="Check Out">
-                            📦 Checkout
-                        </a>
-                    {% endif %}
-
-                    {% if asset.status != 'Maintenance' and asset.status != 'Out of Service' %}
-                        <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm mt-1" title="Add Maintenance">
-                            🛠️ Add Maintenance
-                        </a>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</li>
+                        <li class="list-group-item"><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</li>
+                        <li class="list-group-item"><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</li>
+                        <li class="list-group-item"><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</li>
+                        <li class="list-group-item"><strong>Main Serial:</strong> {{ asset.serial_number }}</li>
+                        <li class="list-group-item"><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</li>
+                        <li class="list-group-item"><strong>Notes:</strong> {{ asset.notes or 'None' }}</li>
+                    </ul>
                     {% else %}
-                        <span class="badge bg-secondary mt-1">Under Maintenance</span>
+                    <p class="text-muted">Type: {{ asset.asset_type | title }}<br>Serial: {{ asset.serial_number }}</p>
                     {% endif %}
-                </td>
-            </tr>
+
+                    <div class="mt-3">
+                        <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
+                        <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
+
+                        {% if asset.status == 'Available' %}
+                            <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm mt-1">📦 Checkout</a>
+                        {% endif %}
+
+                        {% if asset.status not in ['Maintenance', 'Out of Service'] %}
+                            <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm mt-1">🛠️ Maintenance</a>
+                        {% else %}
+                            <span class="badge bg-secondary mt-1">Under Maintenance</span>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
         {% else %}
-            <tr><td colspan="5" class="text-center">No assets found.</td></tr>
+        <p class="text-center mt-3">No assets found.</p>
         {% endfor %}
-        </tbody>
-    </table>
+    </div>
 
     <!-- Pagination -->
-    <nav>
-        <ul class="pagination">
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
             {% if assets.has_prev %}
-                <li class="page-item"><a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num) }}">Previous</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num) }}">Previous</a>
+                </li>
             {% endif %}
             <li class="page-item disabled"><span class="page-link">Page {{ assets.page }} of {{ assets.pages }}</span></li>
             {% if assets.has_next %}
-                <li class="page-item"><a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num) }}">Next</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num) }}">Next</a>
+                </li>
             {% endif %}
         </ul>
     </nav>
