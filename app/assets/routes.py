@@ -38,6 +38,24 @@ def asset_details(asset_id):
 def add_asset():
     form = AssetForm()
     if form.validate_on_submit():
+        # Custom validation for Desktop or Laptop
+        if form.asset_type.data in ['desktop', 'laptop']:
+            missing = []
+            if not form.monitor_serial.data.strip():
+                missing.append('Monitor Serial Number')
+            if not form.keyboard_serial.data.strip():
+                missing.append('Keyboard Serial Number')
+            if not form.mouse_serial.data.strip():
+                missing.append('Mouse Serial Number')
+            if not form.cpu_serial.data.strip():
+                missing.append('CPU Serial Number')
+
+            if missing:
+                for field in missing:
+                    flash(f"{field} is required for {form.asset_type.data.capitalize()}.", "danger")
+                return render_template('assets/add_asset.html', form=form)
+
+        # Save main asset
         asset = Asset(
             name=form.name.data,
             serial_number=form.serial_number.data,
@@ -55,27 +73,28 @@ def add_asset():
         asset.qr_code = str(uuid.uuid4())
         db.session.commit()
 
-        if asset.asset_type.lower() in ['desktop', 'laptop']:
-            complimentary_items = [
-                ('Monitor', 'monitor', 'monitor'),
-                ('Keyboard', 'keyboard', 'keyboard'),
-                ('Mouse', 'mouse', 'mouse'),
-                ('CPU', 'cpu', 'cpu')
+        # If Desktop or Laptop, save component assets with manual serials
+        if asset.asset_type in ['desktop', 'laptop']:
+            component_data = [
+                ('Monitor', 'monitor', form.monitor_serial.data),
+                ('Keyboard', 'keyboard', form.keyboard_serial.data),
+                ('Mouse', 'mouse', form.mouse_serial.data),
+                ('CPU', 'cpu', form.cpu_serial.data),
             ]
-            for comp_name, comp_type_value, serial_suffix in complimentary_items:
-                comp_asset = Asset(
-                    name=f"{comp_name} for {asset.name}",
-                    serial_number=f"{asset.serial_number}-{serial_suffix}",
-                    asset_type=comp_type_value,
+            for name, type_value, serial in component_data:
+                component = Asset(
+                    name=f"{name} for {asset.name}",
+                    serial_number=serial,
+                    asset_type=type_value,
                     purchase_date=form.purchase_date.data,
                     purchase_cost=0.0,
                     location=form.location.data,
                     status='Available',
                     condition='New',
-                    notes=f"Complimentary asset for {asset.name}",
+                    notes=f"Component of {asset.name}",
                     parent_id=asset.id
                 )
-                db.session.add(comp_asset)
+                db.session.add(component)
             db.session.commit()
 
         flash('Asset added successfully!', 'success')
