@@ -3,13 +3,71 @@
 {% block title %}Register - MAMAL Lab{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center vh-100">
-  <div class="col-md-6 col-lg-5">
-    <div class="card shadow-lg">
-      <div class="card-body">
-        <h4 class="text-center mb-4">Create a New Account</h4>
+<style>
+  body {
+    background-image: url("{{ url_for('static', filename='img/background.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
 
-        <!-- Flash messages (success or error) -->
+  .card-blur {
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 15px;
+  }
+
+  .step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
+
+  .step-indicator div {
+    flex: 1;
+    text-align: center;
+    font-weight: bold;
+    color: #0d6efd;
+    position: relative;
+  }
+
+  .step-indicator div::after {
+    content: '';
+    position: absolute;
+    height: 4px;
+    background-color: #0d6efd;
+    bottom: -10px;
+    left: 50%;
+    width: 100%;
+    transform: translateX(-50%);
+    border-radius: 10px;
+  }
+
+  .step-indicator div:last-child::after {
+    display: none;
+  }
+</style>
+
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
+  <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+    <div class="card card-blur shadow-lg border-0">
+      <div class="card-body px-4 py-5">
+
+        <!-- 🔰 Logo -->
+        <div class="text-center mb-4">
+          <img src="{{ url_for('static', filename='img/mamal-logo.png') }}" alt="MAMAL Lab Logo" width="100">
+          <h3 class="mt-2 text-primary fw-bold">MAMAL Lab</h3>
+        </div>
+
+        <!-- 🧭 Step indicator -->
+        <div class="step-indicator">
+          <div>Account Info</div>
+          <div>Security</div>
+          <div>Confirmation</div>
+        </div>
+
+        <!-- 🌟 Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -77,6 +135,7 @@
             <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">Cancel</a>
           </div>
         </form>
+
       </div>
     </div>
   </div>
