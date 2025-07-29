@@ -54,7 +54,6 @@ class AssetForm(FlaskForm):
 
     condition = StringField('Condition', validators=[Optional()])
     notes = TextAreaField('Notes', validators=[Optional()])
-
     submit = SubmitField('Save')
 
 
