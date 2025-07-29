@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Login - MAMAL Lab{% endblock %}
+{% block title %}Login - MAMAL Inventory System{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center vh-100">
@@ -8,7 +8,10 @@
     <div class="card shadow-lg">
       <div class="card-body">
 
-        <h4 class="card-title text-center mb-4">Login to MAMAL Lab</h4>
+        <!-- Bold, professional heading -->
+        <h3 class="card-title text-center mb-4 fw-bold text-primary text-uppercase">
+          Login to MAMAL Inventory System
+        </h3>
 
         <!-- ✅ Flash message block that works with any category -->
         {% with messages = get_flashed_messages(with_categories=true) %}
