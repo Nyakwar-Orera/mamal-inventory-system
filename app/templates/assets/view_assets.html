@@ -6,50 +6,72 @@
 <div class="container mt-4">
     <h2>Asset List</h2>
 
-    <!-- Filter Form -->
-    <form method="get" class="form-inline mb-3">
+    <!-- Filter + Search Form -->
+    <form method="get" class="row g-3 align-items-end mb-4">
         {{ filter_form.hidden_tag() }}
-        <div class="form-group me-2">
+        <div class="col-md-3">
             {{ filter_form.location.label(class="form-label") }}
             {{ filter_form.location(class="form-select") }}
         </div>
-        <div class="form-group me-2">
+        <div class="col-md-3">
             {{ filter_form.status.label(class="form-label") }}
             {{ filter_form.status(class="form-select") }}
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Filter</button>
+        <div class="col-md-4">
+            <label for="search" class="form-label">Search by Name or Serial</label>
+            <input type="text" name="search" id="search" value="{{ request.args.get('search', '') }}" class="form-control" placeholder="Enter name or serial number">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">🔍 Filter</button>
+        </div>
     </form>
 
+    <!-- Bulk Actions -->
+    <div class="mb-3 d-flex justify-content-between align-items-center">
+        <div>
+            <button class="btn btn-outline-secondary btn-sm">📤 Export</button>
+            <button class="btn btn-outline-secondary btn-sm">🖨️ Print</button>
+        </div>
+        <small class="text-muted">Total: {{ assets.total }}</small>
+    </div>
+
     <!-- Asset Table -->
-    <div class="accordion" id="assetAccordion">
-        {% for asset in assets.items %}
-        <div class="accordion-item mb-2">
-            <h2 class="accordion-header" id="heading{{ asset.id }}">
-                <button class="accordion-button {% if asset.asset_type != 'desktop' %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ asset.id }}" aria-expanded="{% if asset.asset_type == 'desktop' %}true{% else %}false{% endif %}" aria-controls="collapse{{ asset.id }}">
-                    <div class="d-flex flex-column">
-                        <strong>{{ asset.name }}</strong>
-                        <small class="text-muted">{{ asset.asset_type | title }} — {{ asset.status }} — {{ asset.location }}</small>
-                    </div>
-                </button>
-            </h2>
-            <div id="collapse{{ asset.id }}" class="accordion-collapse collapse {% if asset.asset_type == 'desktop' %}show{% endif %}" aria-labelledby="heading{{ asset.id }}" data-bs-parent="#assetAccordion">
-                <div class="accordion-body">
-
-                    {% if asset.asset_type == 'desktop' %}
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</li>
-                        <li class="list-group-item"><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</li>
-                        <li class="list-group-item"><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</li>
-                        <li class="list-group-item"><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</li>
-                        <li class="list-group-item"><strong>Main Serial:</strong> {{ asset.serial_number }}</li>
-                        <li class="list-group-item"><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</li>
-                        <li class="list-group-item"><strong>Notes:</strong> {{ asset.notes or 'None' }}</li>
-                    </ul>
-                    {% else %}
-                    <p class="text-muted">Type: {{ asset.asset_type | title }}<br>Serial: {{ asset.serial_number }}</p>
-                    {% endif %}
-
-                    <div class="mt-3">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Serial</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets.items %}
+                <tr class="accordion-toggle" data-bs-toggle="collapse" data-bs-target="#details{{ asset.id }}" aria-expanded="false" aria-controls="details{{ asset.id }}">
+                    <td>{{ asset.name }}</td>
+                    <td>{{ asset.serial_number }}</td>
+                    <td>
+                        {% if asset.asset_type == 'desktop' %}🖥️ Desktop
+                        {% elif asset.asset_type == 'laptop' %}💻 Laptop
+                        {% elif asset.asset_type == 'printer' %}📠 Printer
+                        {% else %}📦 {{ asset.asset_type | title }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge
+                            {% if asset.status == 'Available' %} bg-success
+                            {% elif asset.status == 'In-use' %} bg-primary
+                            {% elif asset.status == 'Maintenance' %} bg-warning text-dark
+                            {% elif asset.status == 'Out of Service' %} bg-danger
+                            {% endif %}">
+                            {{ asset.status }}
+                        </span>
+                    </td>
+                    <td>{{ asset.location }}</td>
+                    <td>
                         <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
                         <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
 
@@ -62,14 +84,30 @@
                         {% else %}
                             <span class="badge bg-secondary mt-1">Under Maintenance</span>
                         {% endif %}
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        {% else %}
-        <p class="text-center mt-3">No assets found.</p>
-        {% endfor %}
+                    </td>
+                </tr>
+                <tr class="collapse bg-light" id="details{{ asset.id }}">
+                    <td colspan="6">
+                        {% if asset.asset_type == 'desktop' %}
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Monitor Serial:</strong> {{ asset.monitor_serial or 'N/A' }}</li>
+                            <li class="list-group-item"><strong>Keyboard Serial:</strong> {{ asset.keyboard_serial or 'N/A' }}</li>
+                            <li class="list-group-item"><strong>Mouse Serial:</strong> {{ asset.mouse_serial or 'N/A' }}</li>
+                            <li class="list-group-item"><strong>CPU Serial:</strong> {{ asset.cpu_serial or 'N/A' }}</li>
+                            <li class="list-group-item"><strong>Main Serial:</strong> {{ asset.serial_number }}</li>
+                            <li class="list-group-item"><strong>Condition:</strong> {{ asset.condition or 'N/A' }}</li>
+                            <li class="list-group-item"><strong>Notes:</strong> {{ asset.notes or 'None' }}</li>
+                        </ul>
+                        {% else %}
+                        <p class="text-muted">Serial: {{ asset.serial_number }}<br>Condition: {{ asset.condition or 'N/A' }}<br>Notes: {{ asset.notes or 'None' }}</p>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center">No assets found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <!-- Pagination -->
