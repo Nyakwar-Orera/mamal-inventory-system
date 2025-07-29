@@ -22,15 +22,34 @@
         <div id="component-serial-section" class="border p-3 rounded mb-4" style="display: none;">
             <h5 class="mb-3">Component Serial Numbers</h5>
             <div class="row">
-                {% for field in [form.monitor_serial, form.keyboard_serial, form.mouse_serial, form.cpu_serial] %}
-                    <div class="col-md-6 mb-3">
-                        <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
-                        {{ field(class="form-control") }}
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors[0] }}</div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.cpu_serial.id }}" class="form-label">{{ form.cpu_serial.label.text }}</label>
+                    {{ form.cpu_serial(class="form-control") }}
+                    {% if form.cpu_serial.errors %}
+                        <div class="text-danger small mt-1">{{ form.cpu_serial.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.monitor_serial.id }}" class="form-label">{{ form.monitor_serial.label.text }}</label>
+                    {{ form.monitor_serial(class="form-control") }}
+                    {% if form.monitor_serial.errors %}
+                        <div class="text-danger small mt-1">{{ form.monitor_serial.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.keyboard_serial.id }}" class="form-label">{{ form.keyboard_serial.label.text }}</label>
+                    {{ form.keyboard_serial(class="form-control") }}
+                    {% if form.keyboard_serial.errors %}
+                        <div class="text-danger small mt-1">{{ form.keyboard_serial.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.mouse_serial.id }}" class="form-label">{{ form.mouse_serial.label.text }}</label>
+                    {{ form.mouse_serial(class="form-control") }}
+                    {% if form.mouse_serial.errors %}
+                        <div class="text-danger small mt-1">{{ form.mouse_serial.errors[0] }}</div>
+                    {% endif %}
+                </div>
             </div>
         </div>
 
