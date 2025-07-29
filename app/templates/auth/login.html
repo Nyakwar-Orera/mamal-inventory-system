@@ -3,17 +3,34 @@
 {% block title %}Login - MAMAL Inventory System{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center vh-100">
-  <div class="col-md-6 col-lg-4">
-    <div class="card shadow-lg">
-      <div class="card-body">
+<style>
+  body {
+    background-image: url("{{ url_for('static', filename='images/aljameaB.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
 
-        <!-- Bold, professional heading -->
-        <h3 class="card-title text-center mb-4 fw-bold text-primary text-uppercase">
-          Login to MAMAL Inventory System
-        </h3>
+  .card-blur {
+    backdrop-filter: blur(12px);
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 15px;
+  }
+</style>
 
-        <!-- ✅ Flash message block that works with any category -->
+<div class="container-fluid min-vh-100 d-flex justify-content-center align-items-center">
+  <div class="col-12 col-md-8 col-lg-5 col-xl-4">
+    <div class="card card-blur shadow-lg border-0">
+      <div class="card-body px-4 py-5">
+
+        <!-- 🔰 Logo -->
+        <div class="text-center mb-4">
+          <img src="{{ url_for('static', filename='images/aljamea.jpg') }}" alt="MAMAL Lab Logo" width="100">
+          <h3 class="mt-2 text-primary fw-bold">MAMAL Inventory</h3>
+        </div>
+
+        <!-- 🌟 Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -28,12 +45,12 @@
         <form method="POST" action="{{ url_for('auth.login') }}">
           {{ form.hidden_tag() }}
 
-          <div class="mb-3">
+          <div class="form-group mb-3">
             {{ form.username.label(class="form-label") }}
             {{ form.username(class="form-control", placeholder="Enter your username") }}
           </div>
 
-          <div class="mb-3">
+          <div class="form-group mb-3">
             {{ form.password.label(class="form-label") }}
             {{ form.password(class="form-control", placeholder="Enter your password") }}
           </div>
@@ -43,7 +60,7 @@
             {{ form.remember_me.label(class="form-check-label") }}
           </div>
 
-          <div class="d-grid mb-3">
+          <div class="d-grid gap-2 mb-3">
             {{ form.submit(class="btn btn-primary") }}
           </div>
 
