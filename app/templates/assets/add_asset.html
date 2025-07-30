@@ -1,91 +1,95 @@
-{% extends 'layouts/base.html' %}
-
+{% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Add New Asset</h2>
-    <form method="post">
+    <h2>Add New Asset</h2>
+    <form method="POST">
         {{ form.hidden_tag() }}
 
-        <div class="row">
-            {% for field in form if field.name not in ['submit', 'monitor_serial', 'keyboard_serial', 'mouse_serial', 'cpu_serial'] %}
-                <div class="col-md-6 mb-3">
-                    <label for="{{ field.id }}" class="form-label">{{ field.label.text }}</label>
-                    {{ field(class="form-control select2" if field.type == 'SelectField' else "form-control") }}
-                    {% if field.errors %}
-                        <div class="text-danger small mt-1">{{ field.errors[0] }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
         </div>
 
-        <!-- Component Serial Fields -->
-        <div id="component-serial-section" class="border p-3 rounded mb-4" style="display: none;">
-            <h5 class="mb-3">Component Serial Numbers</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="{{ form.cpu_serial.id }}" class="form-label">{{ form.cpu_serial.label.text }}</label>
-                    {{ form.cpu_serial(class="form-control") }}
-                    {% if form.cpu_serial.errors %}
-                        <div class="text-danger small mt-1">{{ form.cpu_serial.errors[0] }}</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="{{ form.monitor_serial.id }}" class="form-label">{{ form.monitor_serial.label.text }}</label>
-                    {{ form.monitor_serial(class="form-control") }}
-                    {% if form.monitor_serial.errors %}
-                        <div class="text-danger small mt-1">{{ form.monitor_serial.errors[0] }}</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="{{ form.keyboard_serial.id }}" class="form-label">{{ form.keyboard_serial.label.text }}</label>
-                    {{ form.keyboard_serial(class="form-control") }}
-                    {% if form.keyboard_serial.errors %}
-                        <div class="text-danger small mt-1">{{ form.keyboard_serial.errors[0] }}</div>
-                    {% endif %}
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="{{ form.mouse_serial.id }}" class="form-label">{{ form.mouse_serial.label.text }}</label>
-                    {{ form.mouse_serial(class="form-control") }}
-                    {% if form.mouse_serial.errors %}
-                        <div class="text-danger small mt-1">{{ form.mouse_serial.errors[0] }}</div>
-                    {% endif %}
-                </div>
+        <div class="mb-3">
+            {{ form.asset_type.label(class="form-label") }}
+            {{ form.asset_type(class="form-select") }}
+        </div>
+
+        <!-- Component Mode Toggle -->
+        <div id="component-mode-section" class="mb-3" style="display: none;">
+            <label class="form-label">Component Entry Mode</label>
+            <div>
+                <label><input type="radio" name="component_mode" value="manual" checked> Enter Serial Numbers</label>
+                <label class="ms-3"><input type="radio" name="component_mode" value="select"> Select Existing Assets</label>
             </div>
         </div>
 
-        {{ form.submit(class="btn btn-primary") }}
+        <!-- Manual Component Input -->
+        <div id="manual-component-section" class="border p-3 rounded mb-3" style="display: none;">
+            <h5>Component Serial Numbers</h5>
+            <div class="mb-3">
+                <label>Monitor Serial</label>
+                <input type="text" name="monitor_serial" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label>Keyboard Serial</label>
+                <input type="text" name="keyboard_serial" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label>Mouse Serial</label>
+                <input type="text" name="mouse_serial" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label>CPU Serial</label>
+                <input type="text" name="cpu_serial" class="form-control">
+            </div>
+        </div>
+
+        <!-- Select Existing Components -->
+        <div id="select-component-section" class="border p-3 rounded mb-3" style="display: none;">
+            <h5>Select Existing Components</h5>
+            <div class="row">
+                {% for comp_type in ['monitor', 'keyboard', 'mouse', 'cpu'] %}
+                <div class="col-md-6 mb-3">
+                    <label>{{ comp_type.capitalize() }}</label>
+                    <select name="{{ comp_type }}_id" class="form-control">
+                        <option value="">-- Select {{ comp_type.capitalize() }} --</option>
+                        {% for comp in components[comp_type] %}
+                            <option value="{{ comp.id }}">{{ comp.name }} ({{ comp.serial_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
     </form>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<!-- Include Select2 CSS and JS -->
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $('.select2').select2({ width: '100%' });
+function toggleComponentSections() {
+    const type = document.getElementById("{{ form.asset_type.id }}").value;
+    if (type === 'desktop' || type === 'laptop') {
+        document.getElementById("component-mode-section").style.display = 'block';
+        const mode = document.querySelector('input[name="component_mode"]:checked').value;
+        document.getElementById("manual-component-section").style.display = (mode === 'manual') ? 'block' : 'none';
+        document.getElementById("select-component-section").style.display = (mode === 'select') ? 'block' : 'none';
+    } else {
+        document.getElementById("component-mode-section").style.display = 'none';
+        document.getElementById("manual-component-section").style.display = 'none';
+        document.getElementById("select-component-section").style.display = 'none';
+    }
+}
 
-        // Function to show/hide component fields
-        function toggleComponentSection() {
-            const assetType = $('#{{ form.asset_type.id }}').val();
-            if (assetType === 'desktop' || assetType === 'laptop') {
-                $('#component-serial-section').slideDown();
-            } else {
-                $('#component-serial-section').slideUp();
-                $('#component-serial-section input').val('');
-            }
-        }
-
-        // Initial check
-        toggleComponentSection();
-
-        // Change event
-        $('#{{ form.asset_type.id }}').on('change', function () {
-            toggleComponentSection();
-        });
+document.addEventListener("DOMContentLoaded", function () {
+    toggleComponentSections();
+    document.getElementById("{{ form.asset_type.id }}").addEventListener("change", toggleComponentSections);
+    document.querySelectorAll('input[name="component_mode"]').forEach(radio => {
+        radio.addEventListener("change", toggleComponentSections);
     });
+});
 </script>
 {% endblock %}
