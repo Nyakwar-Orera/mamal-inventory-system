@@ -1,99 +1,93 @@
+<!-- templates/assets/view_assets.html -->
 {% extends 'layouts/base.html' %}
 
 {% block title %}View Assets{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Asset List</h2>
+    <h2>Asset List</h2>
 
-    <!-- Filter + Search Form -->
-    <form method="get" class="row g-3 align-items-end mb-4">
+    <!-- Filter Form -->
+    <form method="get" class="form-inline mb-3">
         {{ filter_form.hidden_tag() }}
-
-        <div class="col-md-3">
+        <div class="form-group me-2">
             {{ filter_form.location.label(class="form-label") }}
             {{ filter_form.location(class="form-select") }}
         </div>
-        <div class="col-md-3">
+        <div class="form-group me-2">
             {{ filter_form.status.label(class="form-label") }}
             {{ filter_form.status(class="form-select") }}
         </div>
-        <div class="col-md-4">
-            <label for="search" class="form-label">Search by Name or Serial</label>
-            <input type="text" name="search" id="search" value="{{ request.args.get('search', '') }}" class="form-control" placeholder="Enter name or serial number">
-        </div>
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary w-100">🔍 Filter</button>
-        </div>
+        <button type="submit" class="btn btn-primary mt-3">Filter</button>
     </form>
 
     <!-- Asset Table -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Name</th>
-                    <th>Serial</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for asset in assets.items %}
-                <tr>
-                    <td>{{ asset.name }}</td>
-                    <td>{{ asset.serial_number }}</td>
-                    <td>{{ asset.asset_type }}</td>
-                    <td>
-                        <span class="badge 
-                            {% if asset.status == 'Available' %} bg-success
-                            {% elif asset.status == 'In-use' %} bg-primary
-                            {% elif asset.status == 'Maintenance' %} bg-warning text-dark
-                            {% elif asset.status == 'Out of Service' %} bg-danger
-                            {% else %} bg-secondary
-                            {% endif %}
-                        ">
-                            {{ asset.status }}
-                        </span>
-                    </td>
-                    <td>{{ asset.location }}</td>
-                    <td class="d-flex flex-column gap-1">
-                        <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
-                        <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
-
-                        {% if asset.status == 'Available' %}
-                            <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm">📦 Checkout</a>
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Serial</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for asset in assets.items %}
+            <tr>
+                <td>{{ asset.name }}</td>
+                <td>{{ asset.serial_number }}</td>
+                <td>{{ asset.asset_type }}</td>
+                <td>
+                    <span class="badge 
+                        {% if asset.status == 'Available' %} bg-success
+                        {% elif asset.status == 'In-use' %} bg-primary
+                        {% elif asset.status == 'Maintenance' %} bg-warning text-dark
+                        {% elif asset.status == 'Out of Service' %} bg-danger
                         {% endif %}
+                    ">
+                        {{ asset.status }}
+                    </span>
+                </td>
+                <td>{{ asset.location }}</td>
+                <td>
+                    <!-- View and Edit -->
+                    <a href="{{ url_for('assets.asset_details', asset_id=asset.id) }}" class="btn btn-info btn-sm">View</a>
+                    <a href="{{ url_for('assets.edit_asset', asset_id=asset.id) }}" class="btn btn-warning btn-sm">Edit</a>
 
-                        {% if asset.status != 'Maintenance' and asset.status != 'Out of Service' %}
-                            <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm">🛠️ Add Maintenance</a>
-                        {% else %}
-                            <span class="badge bg-secondary">Under Maintenance</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% else %}
-                <tr><td colspan="6" class="text-center">No assets found.</td></tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+                    <!-- Checkout Button: Only show if Available -->
+                    {% if asset.status == 'Available' %}
+                        <a href="{{ url_for('checkout.checkout_asset', asset_id=asset.id) }}" class="btn btn-success btn-sm mt-1" title="Check Out">
+                            📦 Checkout
+                        </a>
+                    {% endif %}
+
+                    <!-- Maintenance Button -->
+                    {% if asset.status != 'Maintenance' and asset.status != 'Out of Service' %}
+                        <a href="{{ url_for('maintenance.add_maintenance', asset_id=asset.id) }}" class="btn btn-danger btn-sm mt-1" title="Add Maintenance">
+                            🛠️ Add Maintenance
+                        </a>
+                    {% else %}
+                        <span class="badge bg-secondary mt-1">Under Maintenance</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6" class="text-center">No assets found.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
     <!-- Pagination -->
-    <nav class="mt-4">
-        <ul class="pagination justify-content-center">
+    <nav>
+        <ul class="pagination">
             {% if assets.has_prev %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num, **request.args.to_dict()) }}">Previous</a>
-                </li>
+                <li class="page-item"><a class="page-link" href="{{ url_for('assets.view_assets', page=assets.prev_num) }}">Previous</a></li>
             {% endif %}
             <li class="page-item disabled"><span class="page-link">Page {{ assets.page }} of {{ assets.pages }}</span></li>
             {% if assets.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num, **request.args.to_dict()) }}">Next</a>
-                </li>
+                <li class="page-item"><a class="page-link" href="{{ url_for('assets.view_assets', page=assets.next_num) }}">Next</a></li>
             {% endif %}
         </ul>
     </nav>
