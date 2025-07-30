@@ -37,25 +37,16 @@ def asset_details(asset_id):
 @login_required
 def add_asset():
     form = AssetForm()
+
+    # Fetch components for dropdowns
+    components = {
+        'monitor': Asset.query.filter_by(asset_type='monitor', parent_id=None).all(),
+        'keyboard': Asset.query.filter_by(asset_type='keyboard', parent_id=None).all(),
+        'mouse': Asset.query.filter_by(asset_type='mouse', parent_id=None).all(),
+        'cpu': Asset.query.filter_by(asset_type='cpu', parent_id=None).all(),
+    }
+
     if form.validate_on_submit():
-        # Custom validation for Desktop or Laptop
-        if form.asset_type.data in ['desktop', 'laptop']:
-            missing = []
-            if not form.monitor_serial.data.strip():
-                missing.append('Monitor Serial Number')
-            if not form.keyboard_serial.data.strip():
-                missing.append('Keyboard Serial Number')
-            if not form.mouse_serial.data.strip():
-                missing.append('Mouse Serial Number')
-            if not form.cpu_serial.data.strip():
-                missing.append('CPU Serial Number')
-
-            if missing:
-                for field in missing:
-                    flash(f"{field} is required for {form.asset_type.data.capitalize()}.", "danger")
-                return render_template('assets/add_asset.html', form=form)
-
-        # Save main asset
         asset = Asset(
             name=form.name.data,
             serial_number=form.serial_number.data,
@@ -73,34 +64,70 @@ def add_asset():
         asset.qr_code = str(uuid.uuid4())
         db.session.commit()
 
-        # If Desktop or Laptop, save component assets with manual serials
+        # Handle components if desktop or laptop
         if asset.asset_type in ['desktop', 'laptop']:
-            component_data = [
-                ('Monitor', 'monitor', form.monitor_serial.data),
-                ('Keyboard', 'keyboard', form.keyboard_serial.data),
-                ('Mouse', 'mouse', form.mouse_serial.data),
-                ('CPU', 'cpu', form.cpu_serial.data),
-            ]
-            for name, type_value, serial in component_data:
-                component = Asset(
-                    name=f"{name} for {asset.name}",
-                    serial_number=serial,
-                    asset_type=type_value,
-                    purchase_date=form.purchase_date.data,
-                    purchase_cost=0.0,
-                    location=form.location.data,
-                    status='Available',
-                    condition='New',
-                    notes=f"Component of {asset.name}",
-                    parent_id=asset.id
-                )
-                db.session.add(component)
-            db.session.commit()
+            mode = request.form.get('component_mode', 'manual')
 
+            if mode == 'manual':
+                # Validate missing fields
+                missing = []
+                if not form.monitor_serial.data.strip():
+                    missing.append('Monitor Serial Number')
+                if not form.keyboard_serial.data.strip():
+                    missing.append('Keyboard Serial Number')
+                if not form.mouse_serial.data.strip():
+                    missing.append('Mouse Serial Number')
+                if not form.cpu_serial.data.strip():
+                    missing.append('CPU Serial Number')
+
+                if missing:
+                    for field in missing:
+                        flash(f"{field} is required for {asset.asset_type.capitalize()}.", "danger")
+                    return render_template('assets/add_asset.html', form=form, components=components)
+
+                # Create component assets manually
+                component_data = [
+                    ('Monitor', 'monitor', form.monitor_serial.data),
+                    ('Keyboard', 'keyboard', form.keyboard_serial.data),
+                    ('Mouse', 'mouse', form.mouse_serial.data),
+                    ('CPU', 'cpu', form.cpu_serial.data),
+                ]
+                for name, type_value, serial in component_data:
+                    component = Asset(
+                        name=f"{name} for {asset.name}",
+                        serial_number=serial,
+                        asset_type=type_value,
+                        purchase_date=form.purchase_date.data,
+                        purchase_cost=0.0,
+                        location=form.location.data,
+                        status='Available',
+                        condition='New',
+                        notes=f"Component of {asset.name}",
+                        parent_id=asset.id
+                    )
+                    db.session.add(component)
+
+            elif mode == 'select':
+                selected_ids = {
+                    'monitor': request.form.get('monitor_id'),
+                    'keyboard': request.form.get('keyboard_id'),
+                    'mouse': request.form.get('mouse_id'),
+                    'cpu': request.form.get('cpu_id'),
+                }
+
+                for comp_type, comp_id in selected_ids.items():
+                    if comp_id:
+                        component = Asset.query.get(int(comp_id))
+                        if component and component.parent_id is None:
+                            component.parent_id = asset.id
+                            component.notes = f"Component of {asset.name}"
+                            db.session.add(component)
+
+        db.session.commit()
         flash('Asset added successfully!', 'success')
         return redirect(url_for('assets.view_assets'))
 
-    return render_template('assets/add_asset.html', form=form)
+    return render_template('assets/add_asset.html', form=form, components=components)
 
 @bp.route('/edit/<int:asset_id>', methods=['GET', 'POST'])
 @login_required
