@@ -7,7 +7,7 @@
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
             <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">Share</button>
-            <a href="{{ url_for('export_dashboard_data') }}" class="btn btn-sm btn-outline-success">Export</a>
+            <a href="{{ url_for('main.export_dashboard') }}" class="btn btn-sm btn-outline-success">Export</a>
             <span class="badge bg-primary shadow-sm fs-6">👤 {{ current_user.username }}</span>
         </div>
         <div class="btn-group me-2">
