@@ -34,11 +34,13 @@ def info():
 @login_required
 def dashboard():
     """Render the main dashboard with asset summaries."""
+
     asset_counts = {
-        'desktop': Asset.query.filter_by(asset_type='desktop').count(),
-        'printer': Asset.query.filter_by(asset_type='printer').count(),
-        'server': Asset.query.filter_by(asset_type='server').count(),
-        'other': Asset.query.filter(Asset.asset_type.notin_(['desktop', 'printer', 'server'])).count()
+        'monitor': Asset.query.filter_by(asset_type='Monitor').count(),
+        'keyboard': Asset.query.filter_by(asset_type='Keyboard').count(),
+        'cpu': Asset.query.filter_by(asset_type='CPU').count(),
+        'mouse': Asset.query.filter_by(asset_type='Mouse').count(),
+        'other': Asset.query.filter(Asset.asset_type.notin_(['Monitor', 'Keyboard', 'CPU', 'Mouse'])).count()
     }
 
     status_counts = {
@@ -60,6 +62,7 @@ def dashboard():
         pending_maintenance=pending_maintenance,
         active_checkouts=active_checkouts
     )
+
 
 # ----------------------------
 # QR Code Scanner API
