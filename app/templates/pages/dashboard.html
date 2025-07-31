@@ -1,127 +1,201 @@
-<!-- templates/pages/dashboard.html -->
-{% extends 'layouts/base.html' %}
+{% extends "layouts/base.html" %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <!-- Dashboard Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-dark">Dashboard</h2>
-        <span class="badge bg-primary shadow-sm fs-6">Logged in as: {{ current_user.username }}</span>
-    </div>
-    <!-- Status Summary -->
-    <div class="row g-4 mt-4">
-        {% set status_colors = {'Available': 'success', 'In-use': 'primary', 'Maintenance': 'warning', 'Out of Service': 'danger'} %}
-        {% for status, count in status_counts.items() %}
-        <div class="col-md-6 col-xl-3">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-body d-flex flex-column justify-content-center text-center">
-                    <div class="mb-2">
-                        <i class="fas fa-circle-notch fa-2x text-{{ status_colors.get(status, 'dark') }}"></i>
-                    </div>
-                    <h6 class="card-title text-muted">{{ status }}</h6>
-                    <h4 class="fw-bold text-{{ status_colors.get(status, 'dark') }}">{{ count }}</h4>
-                </div>
-            </div>
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">Share</button>
+            <a href="{{ url_for('export_dashboard_data') }}" class="btn btn-sm btn-outline-success">Export</a>
+            <span class="badge bg-primary shadow-sm fs-6">👤 {{ current_user.username }}</span>
         </div>
-        {% endfor %}
+        <div class="btn-group me-2">
+            <button class="btn btn-sm btn-outline-dark" onclick="toggleTheme()">
+                🌗 Theme
+            </button>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                📅 Filter
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="filterData('week')">This week</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterData('month')">This month</a></li>
+                <li><a class="dropdown-item" href="#" onclick="filterData('all')">All time</a></li>
+            </ul>
+        </div>
     </div>
+</div>
 
-    <!-- Maintenance & Checkout -->
-    <div class="row g-4 mt-4">
-        <div class="col-md-6 col-xl-4">
-            <div class="card shadow-sm border-start border-5 border-danger rounded-4 h-100">
-                <div class="card-body">
-                    <h6 class="text-danger">Pending Maintenance</h6>
-                    <h3 class="fw-bold text-dark">{{ pending_maintenance }}</h3>
-                    <p class="text-muted mb-0">Assets needing attention</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-xl-4">
-            <div class="card shadow-sm border-start border-5 border-warning rounded-4 h-100">
-                <div class="card-body">
-                    <h6 class="text-warning">Active Checkouts</h6>
-                    <h3 class="fw-bold text-dark">{{ active_checkouts }}</h3>
-                    <p class="text-muted mb-0">Currently borrowed items</p>
-                </div>
+<!-- Notifications -->
+<div id="notificationContainer" class="alert alert-info d-none" role="alert">
+    <strong>Info:</strong> Dashboard updated.
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    {% for key, value in asset_counts.items() %}
+    <div class="col-md-3 mb-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center">
+                <h5 class="card-title text-capitalize">{{ key.replace('_', ' ') }}</h5>
+                <p class="display-6 fw-bold">{{ value }}</p>
             </div>
         </div>
     </div>
+    {% endfor %}
+</div>
 
-    <!-- Chart & Low Stock -->
-    <div class="row g-4 mt-4">
-        <!-- Doughnut Chart -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-body">
-                    <h5 class="card-title text-muted mb-4">Asset Distribution</h5>
-                    <canvas id="assetChart" height="180"></canvas>
-                </div>
+<!-- Charts -->
+<div class="row mb-5">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header fw-semibold">Assets Overview</div>
+            <div class="card-body">
+                <canvas id="assetChart" height="150"></canvas>
             </div>
         </div>
-
-        <!-- Low Stock Table -->
-        <div class="col-lg-6">
-            <div class="card shadow-sm border-0 rounded-4 h-100">
-                <div class="card-body">
-                    <h5 class="card-title text-muted mb-4">Low Stock Stationery</h5>
-                    {% if low_stock %}
-                    <table class="table table-sm table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in low_stock %}
-                            <tr>
-                                <td>{{ item.name }}</td>
-                                <td class="text-danger fw-bold">{{ item.quantity }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    {% else %}
-                    <p class="text-success">All items are sufficiently stocked.</p>
-                    {% endif %}
-                </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header fw-semibold">Status Summary</div>
+            <div class="card-body">
+                <canvas id="statusChart" height="150"></canvas>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Chart.js CDN -->
+<!-- Low Stock + Pending -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Low Stock Alerts</h5>
+                <input type="text" class="form-control form-control-sm w-50" id="lowStockSearch" placeholder="Search...">
+            </div>
+            <div class="card-body">
+                {% if low_stock %}
+                <div class="list-group" id="lowStockList">
+                    {% for item in low_stock %}
+                    <a href="#" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ item.name }}</strong>
+                            <span class="text-danger">{{ item.quantity }} remaining</span>
+                        </div>
+                        <small>Threshold: {{ item.threshold }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">✅ No items are below stock threshold.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">🔧 Pending Maintenance</div>
+            <div class="card-body">
+                {% if pending_maintenance > 0 %}
+                <p><strong>{{ pending_maintenance }}</strong> maintenance tasks pending.</p>
+                {% else %}
+                <p class="text-muted">✅ No pending maintenance tasks.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="shareForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareModalLabel">Share Dashboard</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <input type="email" class="form-control" id="email" placeholder="Enter email to share with" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Send</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('assetChart').getContext('2d');
-    const assetChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: {{ asset_counts.keys()|list|tojson }},
-            datasets: [{
-                data: {{ asset_counts.values()|list|tojson }},
-                backgroundColor: [
-                    '#0d6efd', '#198754', '#ffc107', '#0dcaf0', '#6c757d'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { position: 'bottom' },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            let total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            let value = context.raw;
-                            let percentage = ((value / total) * 100).toFixed(1) + '%';
-                            return `${context.label}: ${value} (${percentage})`;
-                        }
-                    }
-                }
-            }
-        }
+function filterData(period) {
+    window.location.href = `/dashboard?time_period=${period}`;
+}
+
+// Theme toggle
+function toggleTheme() {
+    document.body.classList.toggle("bg-dark");
+    document.body.classList.toggle("text-light");
+
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => card.classList.toggle("bg-secondary"));
+}
+
+// Low Stock Search
+document.getElementById('lowStockSearch')?.addEventListener('input', function () {
+    const value = this.value.toLowerCase();
+    const items = document.querySelectorAll('#lowStockList .list-group-item');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(value) ? '' : 'none';
     });
+});
+
+// Asset Chart
+new Chart(document.getElementById('assetChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys({{ asset_counts|tojson }}),
+        datasets: [{
+            label: 'Assets',
+            data: Object.values({{ asset_counts|tojson }}),
+            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+        }]
+    },
+    options: { responsive: true }
+});
+
+// Status Chart
+new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys({{ status_counts|tojson }}),
+        datasets: [{
+            data: Object.values({{ status_counts|tojson }}),
+            backgroundColor: ['#198754', '#ffc107', '#dc3545', '#0d6efd']
+        }]
+    },
+    options: { responsive: true }
+});
+
+// Share
+document.getElementById('shareForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    fetch('/send-dashboard-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+    })
+    .then(res => res.json())
+    .then(data => {
+        alert(data.success ? "📧 Dashboard shared!" : "❌ Failed to send.");
+        bootstrap.Modal.getInstance(document.getElementById('shareModal')).hide();
+    })
+    .catch(err => alert("Error: " + err.message));
+});
 </script>
 {% endblock %}
