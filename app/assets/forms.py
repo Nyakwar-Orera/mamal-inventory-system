@@ -8,11 +8,10 @@ class AssetForm(FlaskForm):
     serial_number = StringField('Serial Number', validators=[DataRequired()])
 
     asset_type = SelectField('Type', choices=[
-        ('desktop', 'Desktop Computer'),
-        ('laptop', 'Laptop'),
-        ('printer', 'Printer'),
-        ('server', 'Server'),
-        ('monitor', 'Monitor'),
+        ('Laptop', 'Laptop'),
+        ('Printer', 'Printer'),
+        ('Server', 'Server'),
+        ('Monitor', 'Monitor'),
         ('Keyboard', 'Keyboard'),
         ('Mouse', 'Mouse'),
         ('CPU', 'CPU'),
