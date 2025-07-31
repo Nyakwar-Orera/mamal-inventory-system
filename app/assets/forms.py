@@ -34,9 +34,6 @@ class AssetForm(FlaskForm):
         ('Scissors', 'Scissors')
     ], validators=[DataRequired()])
 
-    purchase_date = DateField('Purchase Date', default=date.today, validators=[Optional()])
-    purchase_cost = FloatField('Purchase Cost', validators=[Optional()])
-
     location = SelectField('Location', choices=[
         ('', 'Select Location'),
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
