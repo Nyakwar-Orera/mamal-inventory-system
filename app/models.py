@@ -18,8 +18,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    role = db.Column(db.String(20), default='staff')  # Default role is 'staff'
-    is_active = db.Column(db.Boolean, default=True)  # For soft deletion
+    role = db.Column(db.String(20), default='staff')
+    is_active = db.Column(db.Boolean, default=True)
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
 
     checkouts = db.relationship('Checkout', backref='user', lazy='dynamic')
@@ -76,10 +76,8 @@ class Asset(db.Model):
     status = db.Column(db.String(20), default='Available', index=True)
     condition = db.Column(db.String(100))
     notes = db.Column(db.Text)
-    qr_code = db.Column(db.String(100))
     last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Parent-child asset relationship
     parent_id = db.Column(db.Integer, db.ForeignKey('asset.id'), nullable=True)
     components = db.relationship(
         'Asset',
@@ -95,7 +93,6 @@ class Asset(db.Model):
         return f'<Asset {self.name} - {self.serial_number}>'
 
 
-# Auto-update last_updated timestamp before update
 @event.listens_for(Asset, 'before_update')
 def update_asset_timestamp(mapper, connection, target):
     target.last_updated = datetime.utcnow()
