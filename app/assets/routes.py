@@ -5,6 +5,10 @@ from app.models import Asset
 from app.assets import bp
 from app.assets.forms import AssetFilterForm, AssetForm
 
+# Flash wrapper for centralized message control
+def flash_message(message, category='info'):
+    flash(message, category)
+
 # View all assets (with optional filtering)
 @bp.route('/')
 @login_required
@@ -14,7 +18,6 @@ def view_assets():
     status = request.args.get('status', '', type=str)
 
     query = Asset.query
-
     if location:
         query = query.filter_by(location=location)
     if status:
@@ -56,7 +59,7 @@ def add_asset():
         db.session.add(asset)
         db.session.commit()
 
-        flash('Asset added successfully!', 'success')
+        flash_message('Asset added successfully!', 'success')
         return redirect(url_for('assets.view_assets'))
 
     return render_template('assets/add_asset.html', form=form)
@@ -70,7 +73,7 @@ def edit_asset(asset_id):
     if form.validate_on_submit():
         form.populate_obj(asset)
         db.session.commit()
-        flash('Asset updated successfully!', 'success')
+        flash_message('Asset updated successfully!', 'success')
         return redirect(url_for('assets.asset_details', asset_id=asset.id))
     return render_template('assets/edit_asset.html', form=form, asset=asset)
 
@@ -79,11 +82,11 @@ def edit_asset(asset_id):
 @login_required
 def delete_asset(asset_id):
     if current_user.role != 'admin':
-        flash('You do not have permission to delete assets.', 'danger')
+        flash_message('You do not have permission to delete assets.', 'danger')
         return redirect(url_for('assets.view_assets'))
 
     asset = Asset.query.get_or_404(asset_id)
     db.session.delete(asset)
     db.session.commit()
-    flash('Asset deleted successfully.', 'success')
+    flash_message('Asset deleted successfully.', 'success')
     return redirect(url_for('assets.view_assets'))
