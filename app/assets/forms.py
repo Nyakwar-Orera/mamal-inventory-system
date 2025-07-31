@@ -1,10 +1,5 @@
-# app/assets/forms.py
-
 from flask_wtf import FlaskForm
-from wtforms import (
-    StringField, SelectField, DateField,
-    FloatField, TextAreaField, SubmitField
-)
+from wtforms import StringField, SelectField, DateField, FloatField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Optional
 from datetime import date
 
@@ -39,12 +34,6 @@ class AssetForm(FlaskForm):
         ('Scissors', 'Scissors')
     ], validators=[DataRequired()])
 
-    # Optional component serial number fields (visible for desktop/laptop)
-    monitor_serial = StringField('Monitor Serial Number', validators=[Optional()])
-    keyboard_serial = StringField('Keyboard Serial Number', validators=[Optional()])
-    mouse_serial = StringField('Mouse Serial Number', validators=[Optional()])
-    cpu_serial = StringField('CPU Serial Number', validators=[Optional()])
-
     purchase_date = DateField('Purchase Date', default=date.today, validators=[Optional()])
     purchase_cost = FloatField('Purchase Cost', validators=[Optional()])
 
@@ -71,7 +60,7 @@ class AssetForm(FlaskForm):
 
 class AssetFilterForm(FlaskForm):
     location = SelectField('Location', choices=[
-        ('', 'All'),
+        ('', 'All Locations'),
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
         ('Mamal Girls Lab', 'Mamal Girls Lab'),
         ('Masakin', 'Masakin'),
@@ -79,7 +68,7 @@ class AssetFilterForm(FlaskForm):
     ], validators=[Optional()])
 
     status = SelectField('Status', choices=[
-        ('', 'All'),
+        ('', 'All Statuses'),
         ('Available', 'Available'),
         ('In-use', 'In-use'),
         ('Maintenance', 'Maintenance'),
