@@ -72,8 +72,6 @@ class Asset(db.Model):
     name = db.Column(db.String(100), nullable=False)
     serial_number = db.Column(db.String(50), unique=True, nullable=False)
     asset_type = db.Column(db.String(50), nullable=False, index=True)
-    purchase_date = db.Column(db.Date)
-    purchase_cost = db.Column(db.Float)
     location = db.Column(db.String(50), index=True)
     status = db.Column(db.String(20), default='Available', index=True)
     condition = db.Column(db.String(100))
