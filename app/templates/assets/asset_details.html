@@ -42,19 +42,6 @@
                     <tr><th>Location:</th><td>{{ asset.location }}</td></tr>
                     <tr><th>Condition:</th><td>{{ asset.condition }}</td></tr>
                     <tr><th>Notes:</th><td>{{ asset.notes }}</td></tr>
-                    <tr><th>Purchase Date:</th><td>{{ asset.purchase_date.strftime('%d %B %Y') }}</td></tr>
-                    <tr><th>Purchase Cost:</th><td>${{ "%.2f"|format(asset.purchase_cost) }}</td></tr>
-                    <tr>
-                        <th>QR Code:</th>
-                        <td>
-                            {% if asset.qr_code %}
-                                <img src="data:image/png;base64,{{ asset.qr_code }}" alt="QR Code"
-                                     style="max-height: 120px; border: 1px solid #ccc; padding: 6px; background: #fff;">
-                            {% else %}
-                                <em>No QR code generated</em>
-                            {% endif %}
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
