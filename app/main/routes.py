@@ -123,11 +123,15 @@ def send_dashboard_email_route():
         email = data['email']
 
         asset_counts = {
-            'desktop': Asset.query.filter_by(asset_type='desktop').count(),
-            'printer': Asset.query.filter_by(asset_type='printer').count(),
-            'server': Asset.query.filter_by(asset_type='server').count(),
-            'other': Asset.query.filter(Asset.asset_type.notin_(['desktop', 'printer', 'server'])).count()
+            'monitor': Asset.query.filter_by(asset_type='Monitor').count(),
+            'keyboard': Asset.query.filter_by(asset_type='Keyboard').count(),
+            'cpu': Asset.query.filter_by(asset_type='CPU').count(),
+            'mouse': Asset.query.filter_by(asset_type='Mouse').count(),
+            'printer': Asset.query.filter_by(asset_type='Printer').count(),
+            'server': Asset.query.filter_by(asset_type='Server').count(),
+            'other': Asset.query.filter(Asset.asset_type.notin_(['Monitor', 'Keyboard', 'CPU', 'Mouse', 'Printer', 'Server'])).count()
         }
+
 
         status_counts = {
             'Available': Asset.query.filter_by(status='Available').count(),
