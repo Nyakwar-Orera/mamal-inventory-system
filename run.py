@@ -3,14 +3,14 @@ from app.models import User, Asset, Stationery, Maintenance, Checkout
 
 app = create_app()
 
-# ⚠️ TEMPORARY: Resetting the database (commented out after initial run)
-# def reset_database():
-#     with app.app_context():
-#         db.drop_all()
-#         db.create_all()
-#         print("✅ Database reset complete.")
+# ⚠️ TEMPORARY: Resetting the database (this will drop all tables and recreate them)
+def reset_database():
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        print("✅ Database reset complete.")
 
-# reset_database()
+reset_database()
 
 @app.shell_context_processor
 def make_shell_context():
