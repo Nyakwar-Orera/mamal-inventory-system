@@ -4,7 +4,6 @@ from app import db
 from app.models import Asset
 from app.assets import bp
 from app.assets.forms import AssetFilterForm, AssetForm
-from app.utils import generate_qr_code
 
 # View all assets (with optional filtering)
 @bp.route('/')
@@ -57,10 +56,6 @@ def add_asset():
         db.session.add(asset)
         db.session.commit()
 
-        # Generate QR code after getting ID
-        asset.qr_code = generate_qr_code(asset.id, asset.name, asset.serial_number)
-        db.session.commit()
-
         flash('Asset added successfully!', 'success')
         return redirect(url_for('assets.view_assets'))
 
@@ -74,7 +69,6 @@ def edit_asset(asset_id):
     form = AssetForm(obj=asset)
     if form.validate_on_submit():
         form.populate_obj(asset)
-        asset.qr_code = generate_qr_code(asset.id, asset.name, asset.serial_number)
         db.session.commit()
         flash('Asset updated successfully!', 'success')
         return redirect(url_for('assets.asset_details', asset_id=asset.id))
