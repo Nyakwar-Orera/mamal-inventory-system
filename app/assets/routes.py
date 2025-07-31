@@ -49,8 +49,6 @@ def add_asset():
             name=form.name.data,
             serial_number=form.serial_number.data,
             asset_type=form.asset_type.data,
-            purchase_date=form.purchase_date.data,
-            purchase_cost=form.purchase_cost.data,
             location=form.location.data,
             status=form.status.data,
             condition=form.condition.data,
