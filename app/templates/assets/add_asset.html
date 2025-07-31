@@ -7,16 +7,70 @@
     <form method="post">
         {{ form.hidden_tag() }}
 
-        {% for field in form if field.name != 'submit' %}
-            <div class="mb-3">
-                {{ field.label(class="form-label") }}
-                {{ field(class="form-control select2") }}  <!-- Added select2 class here -->
-                {% if field.errors %}
-                    <div class="text-danger">{{ field.errors[0] }}</div>
-                {% endif %}
-            </div>
-        {% endfor %}
+        <!-- Asset Type First -->
+        <div class="mb-3">
+            {{ form.asset_type.label(class="form-label") }}
+            {{ form.asset_type(id="asset_type", class="form-control select2") }}
+            {% if form.asset_type.errors %}
+                <div class="text-danger">{{ form.asset_type.errors[0] }}</div>
+            {% endif %}
+        </div>
 
+        <!-- Asset Name -->
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control") }}
+            {% if form.name.errors %}
+                <div class="text-danger">{{ form.name.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Serial Number -->
+        <div class="mb-3" id="serial_group">
+            {{ form.serial_number.label(class="form-label") }}
+            {{ form.serial_number(id="serial_number", class="form-control") }}
+            {% if form.serial_number.errors %}
+                <div class="text-danger">{{ form.serial_number.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Location -->
+        <div class="mb-3">
+            {{ form.location.label(class="form-label") }}
+            {{ form.location(class="form-control select2") }}
+            {% if form.location.errors %}
+                <div class="text-danger">{{ form.location.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Status -->
+        <div class="mb-3">
+            {{ form.status.label(class="form-label") }}
+            {{ form.status(class="form-control select2") }}
+            {% if form.status.errors %}
+                <div class="text-danger">{{ form.status.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Condition -->
+        <div class="mb-3">
+            {{ form.condition.label(class="form-label") }}
+            {{ form.condition(class="form-control") }}
+            {% if form.condition.errors %}
+                <div class="text-danger">{{ form.condition.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Notes -->
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control") }}
+            {% if form.notes.errors %}
+                <div class="text-danger">{{ form.notes.errors[0] }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Submit Button -->
         {{ form.submit(class="btn btn-primary") }}
     </form>
 </div>
@@ -29,13 +83,24 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<!-- Initialize Select2 on your dropdowns -->
+<!-- Initialize Select2 and Hide/Show Logic -->
 <script>
-    $(document).ready(function() {
-        // Apply Select2 to all select elements with class select2
+    $(document).ready(function () {
         $('.select2').select2({
-            width: '100%'  // Ensures the select2 dropdown matches the width of the select input
+            width: '100%'
         });
+
+        function toggleSerialField() {
+            const hideFor = ['RAM', 'Power Cable', 'Display Cable', 'Fan', 'Pin Remover', 'Scissors'];
+            const selected = $('#asset_type').val();
+            if (hideFor.includes(selected)) {
+                $('#serial_group').hide();
+            } else {
+                $('#serial_group').show();
+            }
+        }
+
+        toggleSerialField();  // On load
+        $('#asset_type').change(toggleSerialField);  // On change
     });
 </script>
-
