@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Mamal Dashboard{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -170,45 +170,59 @@
 
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+
 // Asset Distribution Chart
+<canvas id="assetChart" width="100%" height="400"></canvas>
+
+<script>
+const assetCounts = {
+    mouse: {{ asset_counts.mouse }},
+    monitor: {{ asset_counts.monitor }},
+    cpu: {{ asset_counts.cpu }},
+    keyboard: {{ asset_counts.keyboard }},
+    printer: {{ asset_counts.printer }},
+    server: {{ asset_counts.server }},
+    other: {{ asset_counts.other }}
+};
+
+const assetLabels = Object.keys(assetCounts).map(key => key.charAt(0).toUpperCase() + key.slice(1));
+const assetValues = Object.values(assetCounts);
+
+const totalAssets = assetValues.reduce((a, b) => a + b, 0);
+const backgroundColors = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#8e44ad', '#2ecc71'];
+const hoverBackgroundColors = ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#c0392b', '#71368a', '#27ae60'];
+
 const assetCtx = document.getElementById('assetChart').getContext('2d');
 const assetChart = new Chart(assetCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Desktops', 'Printers', 'Servers', 'Other'],
+        labels: assetLabels,
         datasets: [{
-            data: [
-                {{ asset_counts.mouse }},
-                {{ asset_counts.monitor }},
-                {{ asset_counts.cpu }},
-                {{ asset_counts.keyboard }},
-                {{ asset_counts.printer }},
-                {{ asset_counts.server }},
-                {{ asset_counts.other }}
-            ],
-            backgroundColor: [
-                '#4e73df',
-                '#1cc88a',
-                '#36b9cc',
-                '#f6c23e'
-            ],
-            hoverBackgroundColor: [
-                '#2e59d9',
-                '#17a673',
-                '#2c9faf',
-                '#dda20a'
-            ],
-            hoverBorderColor: "rgba(234, 236, 244, 1)",
-        }],
+            data: assetValues,
+            backgroundColor: backgroundColors,
+            hoverBackgroundColor: hoverBackgroundColors,
+            hoverBorderColor: "rgba(234, 236, 244, 1)"
+        }]
     },
     options: {
         maintainAspectRatio: false,
         plugins: {
             legend: {
                 position: 'right',
+                labels: {
+                    color: '#444',
+                    usePointStyle: true,
+                }
             },
             tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.raw;
+                        const percentage = ((value / totalAssets) * 100).toFixed(1);
+                        return `${label}: ${value} (${percentage}%)`;
+                    }
+                },
                 backgroundColor: "rgb(255,255,255)",
                 bodyColor: "#858796",
                 borderColor: '#dddfeb',
@@ -216,10 +230,10 @@ const assetChart = new Chart(assetCtx, {
                 padding: 15,
             }
         },
-        cutout: '80%',
-    },
+        cutout: '70%',
+    }
 });
-
+    
 // Status Distribution Chart
 const statusCtx = document.getElementById('statusChart').getContext('2d');
 const statusChart = new Chart(statusCtx, {
