@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, DateField, FloatField, TextAreaField, SubmitField
+from wtforms import StringField, SelectField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Optional
-from datetime import date
 
 class AssetForm(FlaskForm):
     name = StringField('Asset Name', validators=[DataRequired()])
@@ -50,11 +49,12 @@ class AssetForm(FlaskForm):
 
     condition = StringField('Condition', validators=[Optional()])
     notes = TextAreaField('Notes', validators=[Optional()])
-
     submit = SubmitField('Save')
 
 
 class AssetFilterForm(FlaskForm):
+    search = StringField('Search', validators=[Optional()])
+
     location = SelectField('Location', choices=[
         ('', 'All Locations'),
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
