@@ -6,11 +6,9 @@ from app.models import Asset
 from app.assets import bp
 from app.assets.forms import AssetFilterForm, AssetForm
 
-# Flash wrapper for centralized message control
 def flash_message(message, category='info'):
     flash(message, category)
 
-# View all assets (with optional filtering + search)
 @bp.route('/')
 @login_required
 def view_assets():
@@ -45,18 +43,14 @@ def view_assets():
 
     filter_form = AssetFilterForm(location=location, status=status, search=search)
 
-    return render_template('assets/view_assets.html',
-                           assets=assets,
-                           filter_form=filter_form)
+    return render_template('assets/view_assets.html', assets=assets, filter_form=filter_form)
 
-# View asset details
 @bp.route('/<int:asset_id>')
 @login_required
 def asset_details(asset_id):
     asset = Asset.query.get_or_404(asset_id)
     return render_template('assets/asset_details.html', asset=asset)
 
-# Add a new asset
 @bp.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_asset():
@@ -73,13 +67,11 @@ def add_asset():
         )
         db.session.add(asset)
         db.session.commit()
-
         flash_message('Asset added successfully!', 'success')
-        return redirect(url_for('assets.add_assets'))
+        return redirect(url_for('assets.add_asset'))
 
     return render_template('assets/add_asset.html', form=form)
 
-# Edit existing asset
 @bp.route('/edit/<int:asset_id>', methods=['GET', 'POST'])
 @login_required
 def edit_asset(asset_id):
@@ -92,7 +84,6 @@ def edit_asset(asset_id):
         return redirect(url_for('assets.asset_details', asset_id=asset.id))
     return render_template('assets/edit_asset.html', form=form, asset=asset)
 
-# Delete an asset
 @bp.route('/delete/<int:asset_id>', methods=['POST'])
 @login_required
 def delete_asset(asset_id):
