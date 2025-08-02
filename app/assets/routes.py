@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
+from sqlalchemy import or_
 from app import db
 from app.models import Asset
 from app.assets import bp
@@ -9,26 +10,40 @@ from app.assets.forms import AssetFilterForm, AssetForm
 def flash_message(message, category='info'):
     flash(message, category)
 
-# View all assets (with optional filtering)
+# View all assets (with optional filtering + search)
 @bp.route('/')
 @login_required
 def view_assets():
     page = request.args.get('page', 1, type=int)
     location = request.args.get('location', '', type=str)
     status = request.args.get('status', '', type=str)
+    search = request.args.get('search', '', type=str)
 
     query = Asset.query
+
     if location:
-        query = query.filter_by(location=location)
+        query = query.filter(Asset.location == location)
+
     if status:
-        query = query.filter_by(status=status)
+        query = query.filter(Asset.status == status)
+
+    if search:
+        keyword = f"%{search}%"
+        query = query.filter(
+            or_(
+                Asset.name.ilike(keyword),
+                Asset.serial_number.ilike(keyword),
+                Asset.asset_type.ilike(keyword),
+                Asset.location.ilike(keyword),
+            )
+        )
 
     assets = query.order_by(Asset.name.asc()).paginate(
         page=page,
         per_page=current_app.config.get('ITEMS_PER_PAGE', 10)
     )
 
-    filter_form = AssetFilterForm(location=location, status=status)
+    filter_form = AssetFilterForm(location=location, status=status, search=search)
 
     return render_template('assets/view_assets.html',
                            assets=assets,
@@ -60,7 +75,7 @@ def add_asset():
         db.session.commit()
 
         flash_message('Asset added successfully!', 'success')
-        return redirect(url_for('assets.view_assets'))
+        return redirect(url_for('assets.add_assets'))
 
     return render_template('assets/add_asset.html', form=form)
 
