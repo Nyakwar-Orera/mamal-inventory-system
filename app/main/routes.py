@@ -121,7 +121,6 @@ def scan_qr():
 @bp.route('/send-dashboard-email', methods=['POST'])
 @login_required
 def send_dashboard_email_route():
-    """Send dashboard summary to a given email address."""
     data = request.get_json()
     if not data or 'email' not in data:
         return jsonify({'success': False, 'error': 'Email is required'}), 400
@@ -136,9 +135,12 @@ def send_dashboard_email_route():
             'mouse': Asset.query.filter_by(asset_type='Mouse').count(),
             'printer': Asset.query.filter_by(asset_type='Printer').count(),
             'server': Asset.query.filter_by(asset_type='Server').count(),
-            'other': Asset.query.filter(Asset.asset_type.notin_(['Monitor', 'Keyboard', 'CPU', 'Mouse', 'Printer', 'Server'])).count()
+            'other': Asset.query.filter(
+                Asset.asset_type.notin_([
+                    'Monitor', 'Keyboard', 'CPU', 'Mouse', 'Printer', 'Server'
+                ])
+            ).count()
         }
-
 
         status_counts = {
             'Available': Asset.query.filter_by(status='Available').count(),
@@ -173,13 +175,19 @@ def send_dashboard_email_route():
 @bp.route('/export-dashboard')
 @login_required
 def export_dashboard():
-    """Export dashboard statistics as CSV for external reporting."""
     try:
         asset_counts = {
-            'desktop': Asset.query.filter_by(asset_type='desktop').count(),
-            'printer': Asset.query.filter_by(asset_type='printer').count(),
-            'server': Asset.query.filter_by(asset_type='server').count(),
-            'other': Asset.query.filter(Asset.asset_type.notin_(['desktop', 'printer', 'server'])).count()
+            'monitor': Asset.query.filter_by(asset_type='Monitor').count(),
+            'keyboard': Asset.query.filter_by(asset_type='Keyboard').count(),
+            'cpu': Asset.query.filter_by(asset_type='CPU').count(),
+            'mouse': Asset.query.filter_by(asset_type='Mouse').count(),
+            'printer': Asset.query.filter_by(asset_type='Printer').count(),
+            'server': Asset.query.filter_by(asset_type='Server').count(),
+            'other': Asset.query.filter(
+                Asset.asset_type.notin_([
+                    'Monitor', 'Keyboard', 'CPU', 'Mouse', 'Printer', 'Server'
+                ])
+            ).count()
         }
 
         status_counts = {
@@ -192,7 +200,6 @@ def export_dashboard():
         pending_maintenance = Maintenance.query.filter_by(status='Pending').count()
         active_checkouts = Checkout.query.filter(Checkout.actual_return == None).count()
 
-        # CSV Output
         output = StringIO()
         writer = csv.writer(output)
         writer.writerow(['Section', 'Category', 'Count'])
@@ -214,3 +221,4 @@ def export_dashboard():
     except Exception as e:
         current_app.logger.error(f"CSV export failed: {str(e)}")
         return "Export failed", 500
+
