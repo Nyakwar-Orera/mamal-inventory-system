@@ -7,14 +7,14 @@ class AssetForm(FlaskForm):
     serial_number = StringField('Serial Number', validators=[DataRequired()])
 
     asset_type = SelectField('Type', choices=[
-        ('Laptop', 'Laptop'),
-        ('Printer', 'Printer'),
-        ('Server', 'Server'),
         ('Monitor', 'Monitor'),
         ('Keyboard', 'Keyboard'),
         ('Mouse', 'Mouse'),
         ('CPU', 'CPU'),
         ('TV', 'TV'),
+        ('Laptop', 'Laptop'),
+        ('Printer', 'Printer'),
+        ('Server', 'Server'),
         ('Camera', 'Camera'),
         ('Headphone', 'Headphone / Headset'),
         ('Paper cutter', 'Paper Cutter'),
@@ -53,8 +53,6 @@ class AssetForm(FlaskForm):
 
 
 class AssetFilterForm(FlaskForm):
-    search = StringField('Search', validators=[Optional()])
-
     location = SelectField('Location', choices=[
         ('', 'All Locations'),
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
@@ -71,4 +69,5 @@ class AssetFilterForm(FlaskForm):
         ('Out of Service', 'Out of Service')
     ], validators=[Optional()])
 
+    search = StringField('Search', validators=[Optional()])
     submit = SubmitField('Filter')
