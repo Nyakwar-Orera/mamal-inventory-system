@@ -2,11 +2,22 @@ Dashboard Summary Report
 =========================
 
 Asset Distribution:
-- Desktops: {{ asset_counts.desktop }}
+- Monitors: {{ asset_counts.monitor }}
+- Keyboards: {{ asset_counts.keyboard }}
+- CPUs: {{ asset_counts.cpu }}
+- Mice: {{ asset_counts.mouse }}
 - Printers: {{ asset_counts.printer }}
 - Servers: {{ asset_counts.server }}
 - Other: {{ asset_counts.other }}
-- Total: {{ asset_counts.desktop + asset_counts.printer + asset_counts.server + asset_counts.other }}
+- Total: {{ 
+    asset_counts.monitor +
+    asset_counts.keyboard +
+    asset_counts.cpu +
+    asset_counts.mouse +
+    asset_counts.printer +
+    asset_counts.server +
+    asset_counts.other 
+}}
 
 Status Summary:
 - Available: {{ status_counts['Available'] }}
