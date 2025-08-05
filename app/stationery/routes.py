@@ -4,6 +4,8 @@ from app import db
 from app.models import Stationery
 from app.stationery import bp  # Blueprint import (ensure this is correct)
 from app.stationery.forms import StationeryForm, StationeryUpdateForm
+from datetime import datetime
+
 
 # View all stationery items
 @bp.route('/')
@@ -38,7 +40,9 @@ def add_stationery():
             quantity=form.quantity.data,
             unit=form.unit.data,
             threshold=form.threshold.data,
-            location=form.location.data
+            location=form.location.data,
+            created_at=datetime.utcnow(),
+            last_updated=datetime.utcnow()
         )
         db.session.add(stationery)
         db.session.commit()
@@ -77,6 +81,9 @@ def update_stationery(item_id):
         # Update location if provided
         if form.location.data:
             item.location = form.location.data
+
+        # Update last_updated timestamp
+        item.last_updated = datetime.utcnow()
 
         db.session.commit()
         flash('Stationery item updated successfully!', 'success')
