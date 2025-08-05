@@ -1,24 +1,24 @@
-{% extends 'layouts/base.html' %}
-{% block title %}Stationery Report{% endblock %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Stationery Inventory Report</h2>
-
-    <a href="{{ url_for('reports.export_report', report_type='stationery', format='excel') }}" class="btn btn-success btn-sm">Export Excel</a>
-    <a href="{{ url_for('reports.export_report', report_type='stationery', format='pdf') }}" class="btn btn-danger btn-sm">Export PDF</a>
-
-    <table class="table table-bordered mt-3">
-        <thead><tr><th>Item Type</th><th>Quantity</th><th>Unit</th><th>Location</th></tr></thead>
-        <tbody>
-            {% for item in stationery %}
-                <tr>
-                    <td>{{ item.item_type }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.unit }}</td>
-                    <td>{{ item.location or 'N/A' }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
+<table class="table table-bordered mt-3">
+    <thead>
+        <tr>
+            <th>Item Type</th>
+            <th>Quantity</th>
+            <th>Unit</th>
+            <th>Location</th>
+            <th>Created At</th>
+            <th>Last Updated</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in stationery %}
+        <tr>
+            <td>{{ item.item_type }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.location or 'N/A' }}</td>
+            <td>{{ item.created_at.strftime('%Y-%m-%d %H:%M:%S') if item.created_at else 'N/A' }}</td>
+            <td>{{ item.last_updated.strftime('%Y-%m-%d %H:%M:%S') if item.last_updated else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
