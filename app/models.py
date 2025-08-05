@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     __tablename__ = 'user'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
@@ -68,7 +68,7 @@ class Asset(db.Model):
     __tablename__ = 'asset'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     serial_number = db.Column(db.String(50), unique=True, nullable=False)
     asset_type = db.Column(db.String(50), nullable=False, index=True)
@@ -76,7 +76,7 @@ class Asset(db.Model):
     status = db.Column(db.String(20), default='Available', index=True)
     condition = db.Column(db.String(100))
     notes = db.Column(db.Text)
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
     parent_id = db.Column(db.Integer, db.ForeignKey('asset.id'), nullable=True)
     components = db.relationship(
@@ -92,7 +92,7 @@ class Asset(db.Model):
     def __repr__(self):
         return f'<Asset {self.name} - {self.serial_number}>'
 
-
+# Automatically update last_updated on asset changes
 @event.listens_for(Asset, 'before_update')
 def update_asset_timestamp(mapper, connection, target):
     target.last_updated = datetime.utcnow()
@@ -105,16 +105,21 @@ class Stationery(db.Model):
     __tablename__ = 'stationery'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    last_updated = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     item_type = db.Column(db.String(50), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     unit = db.Column(db.String(20), default='sheets')
     threshold = db.Column(db.Integer)
     location = db.Column(db.String(50), index=True)
-    last_updated = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return f'<Stationery {self.item_type} - {self.quantity} {self.unit}>'
+
+# Automatically update last_updated on stationery changes
+@event.listens_for(Stationery, 'before_update')
+def update_stationery_timestamp(mapper, connection, target):
+    target.last_updated = datetime.utcnow()
 
 
 # -----------------------------
@@ -124,7 +129,7 @@ class Maintenance(db.Model):
     __tablename__ = 'maintenance'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
     start_date = db.Column(db.DateTime, default=datetime.utcnow)
     end_date = db.Column(db.DateTime)
@@ -145,7 +150,7 @@ class Checkout(db.Model):
     __tablename__ = 'checkout'
 
     id = db.Column(db.Integer, primary_key=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     checkout_date = db.Column(db.DateTime, default=datetime.utcnow)
