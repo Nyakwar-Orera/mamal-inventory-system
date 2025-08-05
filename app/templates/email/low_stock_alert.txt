@@ -1,0 +1,14 @@
+Subject: Low Stock Alert - Stationery Items
+
+Dear Admin,
+
+The following stationery items are running low on stock (quantity below threshold):
+
+{% for item in low_stock_items %}
+- {{ item.item_type }} ({{ item.quantity }} {{ item.unit }}) at {{ item.location }} (Threshold: {{ item.threshold }})
+{% endfor %}
+
+Please review and reorder as necessary.
+
+Regards,
+Mamal Lab Inventory System
