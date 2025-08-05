@@ -3,31 +3,44 @@
 {% block content %}
 
 <h2>Update Stationery: {{ item.item_type }}</h2>
-<form method="POST">
+<form method="POST" novalidate>
     {{ form.hidden_tag() }}
 
     <div class="mb-3">
         {{ form.quantity_change.label(class="form-label") }}
-        {{ form.quantity_change(class="form-control") }}
+        {{ form.quantity_change(class="form-control" + (' is-invalid' if form.quantity_change.errors else '')) }}
+        {% for error in form.quantity_change.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
         {{ form.action.label(class="form-label") }}
-        {{ form.action(class="form-select") }}
+        {{ form.action(class="form-select" + (' is-invalid' if form.action.errors else '')) }}
+        {% for error in form.action.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
     </div>
 
     <div class="mb-3">
         {{ form.threshold.label(class="form-label") }}
-        {{ form.threshold(class="form-control") }}
+        {{ form.threshold(class="form-control" + (' is-invalid' if form.threshold.errors else '')) }}
+        {% for error in form.threshold.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
+        <div class="form-text">Leave blank to keep unchanged</div>
     </div>
 
     <div class="mb-3">
         {{ form.location.label(class="form-label") }}
-        {{ form.location(class="form-select") }}
+        {{ form.location(class="form-select" + (' is-invalid' if form.location.errors else '')) }}
+        {% for error in form.location.errors %}
+        <div class="invalid-feedback">{{ error }}</div>
+        {% endfor %}
     </div>
 
     <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
-    <a href="{{ url_for('stationery.view_stationery') }}" class="btn btn-secondary">Cancel</a>
+    <a href="{{ url_for('stationery.view_stationery') }}" class="btn btn-secondary ms-2">Cancel</a>
 </form>
 
 {% endblock %}
