@@ -50,6 +50,8 @@
             <th>Unit</th>
             <th>Threshold</th>
             <th>Location</th>
+            <th>Created At</th>
+            <th>Last Updated</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -61,6 +63,8 @@
             <td>{{ item.unit }}</td>
             <td>{{ item.threshold }}</td>
             <td>{{ item.location or "General Storage" }}</td>
+            <td>{{ item.created_at.strftime('%Y-%m-%d') if item.created_at else 'N/A' }}</td>
+            <td>{{ item.last_updated.strftime('%Y-%m-%d') if item.last_updated else 'N/A' }}</td>
             <td>
                 <a href="{{ url_for('stationery.update_stationery', item_id=item.id) }}" class="btn btn-sm btn-primary">Update</a>
                 <form action="{{ url_for('stationery.delete_stationery', item_id=item.id) }}" method="post" style="display:inline;">
@@ -70,7 +74,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="6" class="text-center">No stationery items found.</td>
+            <td colspan="8" class="text-center">No stationery items found.</td>
         </tr>
         {% endfor %}
     </tbody>
