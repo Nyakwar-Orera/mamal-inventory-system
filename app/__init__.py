@@ -3,10 +3,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
+from flask_migrate import Migrate  # ✅ Added
 from config import Config
 
 # Initialize extensions
 db = SQLAlchemy()
+migrate = Migrate()  # ✅ Added
 login = LoginManager()
 login.login_view = 'auth.login'
 mail = Mail()
@@ -18,7 +20,7 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
-    # Ensure DATABASE_URL is properly formatted for SQLAlchemy (Render fix)
+    # ✅ Fix DATABASE_URL if on Render (ensure proper URI for SQLAlchemy)
     db_url = app.config.get('SQLALCHEMY_DATABASE_URI')
     if db_url and db_url.startswith('postgres://'):
         db_url = db_url.replace('postgres://', 'postgresql://', 1)
@@ -26,6 +28,7 @@ def create_app(config_class=Config):
 
     # Initialize extensions with app
     db.init_app(app)
+    migrate.init_app(app, db)  # ✅ Added
     login.init_app(app)
     mail.init_app(app)
 
