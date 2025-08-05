@@ -16,14 +16,22 @@
             <option value="A4" {% if request.args.get('item_type') == 'A4' %}selected{% endif %}>A4 Paper</option>
             <option value="A3" {% if request.args.get('item_type') == 'A3' %}selected{% endif %}>A3 Paper</option>
             <option value="A5" {% if request.args.get('item_type') == 'A5' %}selected{% endif %}>A5 Paper</option>
-            <option value="photo_paper" {% if request.args.get('item_type') == 'photo_paper' %}selected{% endif %}>Photo Paper</option>
+            <option value="Sticker Paper 2" {% if request.args.get('item_type') == 'Sticker Paper 2' %}selected{% endif %}>Sticker Paper - Type 2</option>
+            <option value="Sticker Paper 16" {% if request.args.get('item_type') == 'Sticker Paper 16' %}selected{% endif %}>Sticker Paper - Type 16</option>
+            <option value="Sticker Paper 24" {% if request.args.get('item_type') == 'Sticker Paper 24' %}selected{% endif %}>Sticker Paper - Type 24</option>
+            <option value="Certificate Paper" {% if request.args.get('item_type') == 'Certificate Paper' %}selected{% endif %}>Certificate Paper</option>
+            <option value="Staplers" {% if request.args.get('item_type') == 'Staplers' %}selected{% endif %}>Staplers</option>
+            <option value="Pins" {% if request.args.get('item_type') == 'Pins' %}selected{% endif %}>Pins</option>
+            <option value="Photo Paper" {% if request.args.get('item_type') == 'Photo Paper' %}selected{% endif %}>Photo Paper</option>
+            <option value="Paper Punch" {% if request.args.get('item_type') == 'Paper Punch' %}selected{% endif %}>Paper Punch</option>
         </select>
     </div>
 
     <div class="col-md-4">
         <label for="location" class="form-label">Filter by Location</label>
         <select name="location" id="location" class="form-select">
-            <option value="">Main Office</option>
+            <option value="" {% if not request.args.get('location') %}selected{% endif %}>All Locations</option>
+            <option value="Main Office" {% if request.args.get('location') == 'Main Office' %}selected{% endif %}>Main Office</option>
         </select>
     </div>
 
@@ -47,7 +55,7 @@
     </thead>
     <tbody>
         {% for item in stationery_items %}
-        <tr>
+        <tr class="{% if item.quantity <= item.threshold %}table-warning{% endif %}">
             <td>{{ item.item_type }}</td>
             <td>{{ item.quantity }}</td>
             <td>{{ item.unit }}</td>
@@ -56,7 +64,7 @@
             <td>
                 <a href="{{ url_for('stationery.update_stationery', item_id=item.id) }}" class="btn btn-sm btn-primary">Update</a>
                 <form action="{{ url_for('stationery.delete_stationery', item_id=item.id) }}" method="post" style="display:inline;">
-                    <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Are you sure?')">Delete</button>
+                    <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Are you sure you want to delete this item?')">Delete</button>
                 </form>
             </td>
         </tr>
