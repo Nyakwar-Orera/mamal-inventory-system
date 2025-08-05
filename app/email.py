@@ -2,7 +2,8 @@ from flask_mail import Message
 from flask import render_template, current_app
 from app import mail
 from threading import Thread
-from app.models import Stationery  # import your model here
+from email.utils import formataddr
+from app.models import Stationery
 
 
 def send_async_email(app, msg):
@@ -14,8 +15,13 @@ def send_async_email(app, msg):
         app.logger.error(f"Failed to send email: {e}")
 
 
-def send_email(subject, sender, recipients, text_body, html_body):
+def send_email(subject, recipients, text_body, html_body):
     """Generic async email sender with text and HTML content."""
+
+    sender_email = current_app.config.get('MAIL_USERNAME')
+    sender_name = "Mamal Lab System"
+    sender = formataddr((sender_name, sender_email))
+
     msg = Message(subject, sender=sender, recipients=recipients)
     msg.body = text_body
     msg.html = html_body
@@ -32,8 +38,7 @@ def send_password_reset_email(user):
     token = user.get_reset_password_token()
 
     send_email(
-        subject='[MamalLab] Reset Your Password',
-        sender=current_app.config.get('MAIL_USERNAME'),
+        subject='[Mamal Lab] Reset Your Password',
         recipients=[user.email],
         text_body=render_template('email/reset_password.txt', user=user, token=token),
         html_body=render_template('email/reset_password.html', user=user, token=token)
@@ -43,8 +48,6 @@ def send_password_reset_email(user):
 def send_dashboard_report_email(asset_counts, status_counts, low_stock, pending_maintenance, active_checkouts, recipient=None):
     """Send dashboard summary email to admins or specified recipient."""
     subject = "Dashboard Report - Mamal Lab"
-    sender = current_app.config.get('MAIL_USERNAME')
-
     recipients = [recipient] if recipient else current_app.config.get('ADMINS', [])
 
     if not recipients:
@@ -69,7 +72,7 @@ def send_dashboard_report_email(asset_counts, status_counts, low_stock, pending_
         active_checkouts=active_checkouts
     )
 
-    send_email(subject, sender, recipients, text_body, html_body)
+    send_email(subject, recipients, text_body, html_body)
 
 
 def send_low_stock_summary_email():
@@ -81,7 +84,6 @@ def send_low_stock_summary_email():
         return
 
     subject = "Low Stock Alert - Stationery Items"
-    sender = current_app.config.get('MAIL_USERNAME')
     recipients = current_app.config.get('ADMINS', [])
 
     if not recipients:
@@ -91,4 +93,4 @@ def send_low_stock_summary_email():
     text_body = render_template('email/low_stock_alert.txt', low_stock_items=low_stock_items)
     html_body = render_template('email/low_stock_alert.html', low_stock_items=low_stock_items)
 
-    send_email(subject, sender, recipients, text_body, html_body)
+    send_email(subject, recipients, text_body, html_body)
