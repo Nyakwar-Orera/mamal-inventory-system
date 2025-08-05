@@ -29,8 +29,8 @@ def view_stationery():
 def add_stationery():
     if current_user.role not in ['admin', 'staff']:
         flash('You do not have permission to add stationery.', 'danger')
-        return redirect(url_for('stationery.view_stationery'))  # Ensure correct endpoint name
-    
+        return redirect(url_for('stationery.view_stationery'))
+
     form = StationeryForm()
     if form.validate_on_submit():
         stationery = Stationery(
@@ -43,8 +43,9 @@ def add_stationery():
         db.session.add(stationery)
         db.session.commit()
         flash('Stationery item added successfully!', 'success')
-        return redirect(url_for('stationery.view_stationery'))  # Correct the URL to 'stationery.view_stationery'
+        return redirect(url_for('stationery.view_stationery'))
     return render_template('stationery/add_stationery.html', form=form)
+
 
 # Update an existing stationery item
 @bp.route('/update/<int:item_id>', methods=['GET', 'POST'])
@@ -52,33 +53,37 @@ def add_stationery():
 def update_stationery(item_id):
     if current_user.role not in ['admin', 'staff']:
         flash('You do not have permission to update stationery.', 'danger')
-        return redirect(url_for('stationery.view_stationery'))  # Correct redirect URL
-    
+        return redirect(url_for('stationery.view_stationery'))
+
     item = Stationery.query.get_or_404(item_id)
-    form = StationeryUpdateForm(obj=item)
-    
+
+    # Pass current_quantity to the form for validation on subtraction
+    form = StationeryUpdateForm(current_quantity=item.quantity, obj=item)
+
     if form.validate_on_submit():
-        action = request.form.get('action')
-        
-        # Handle quantity changes based on user action
+        action = form.action.data  # Use form data directly instead of request.form
+
         if action == 'add':
             item.quantity += form.quantity_change.data
         elif action == 'subtract':
             item.quantity -= form.quantity_change.data
             if item.quantity < 0:
-                item.quantity = 0
-        
-        # Update threshold and location if data is provided
+                item.quantity = 0  # Just in case validation misses it
+
+        # Update threshold if provided
         if form.threshold.data is not None:
             item.threshold = form.threshold.data
+
+        # Update location if provided
         if form.location.data:
             item.location = form.location.data
-        
+
         db.session.commit()
         flash('Stationery item updated successfully!', 'success')
-        return redirect(url_for('stationery.view_stationery'))  # Correct redirect URL
-    
+        return redirect(url_for('stationery.view_stationery'))
+
     return render_template('stationery/update_stationery.html', form=form, item=item)
+
 
 # Delete a stationery item
 @bp.route('/delete/<int:item_id>', methods=['POST'])
@@ -86,10 +91,10 @@ def update_stationery(item_id):
 def delete_stationery(item_id):
     if current_user.role != 'admin':
         flash('You do not have permission to delete stationery.', 'danger')
-        return redirect(url_for('stationery.view_stationery'))  # Correct redirect URL
-    
+        return redirect(url_for('stationery.view_stationery'))
+
     item = Stationery.query.get_or_404(item_id)
     db.session.delete(item)
     db.session.commit()
     flash('Stationery item deleted successfully.', 'success')
-    return redirect(url_for('stationery.view_stationery'))  # Correct redirect URL
+    return redirect(url_for('stationery.view_stationery'))
