@@ -11,6 +11,9 @@ login = LoginManager()
 login.login_view = 'auth.login'
 mail = Mail()
 
+# Import scheduler start function
+from app.scheduler import start_scheduler
+
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
@@ -44,5 +47,9 @@ def create_app(config_class=Config):
     app.register_blueprint(maintenance_bp, url_prefix='/maintenance')
     app.register_blueprint(reports_bp, url_prefix='/reports')
     app.register_blueprint(admin_bp, url_prefix='/admin')
+
+    # Start APScheduler after app context is pushed
+    with app.app_context():
+        start_scheduler()
 
     return app
