@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Low Stock Alert - Stationery Items</title>
+</head>
+<body>
+    <h2>Low Stock Alert - Stationery Items</h2>
+    <p>Dear Admin,</p>
+    <p>The following stationery items are running low on stock (quantity below threshold):</p>
+    <ul>
+    {% for item in low_stock_items %}
+        <li><strong>{{ item.item_type }}</strong> ({{ item.quantity }} {{ item.unit }}) at <em>{{ item.location }}</em> (Threshold: {{ item.threshold }})</li>
+    {% endfor %}
+    </ul>
+    <p>Please review and reorder as necessary.</p>
+    <p>Regards,<br>Mamal Lab Inventory System</p>
+</body>
+</html>
