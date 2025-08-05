@@ -2,6 +2,8 @@ from flask_mail import Message
 from flask import render_template, current_app
 from app import mail
 from threading import Thread
+from app.models import Stationery  # import your model here
+
 
 def send_async_email(app, msg):
     """Send email asynchronously within app context."""
@@ -10,6 +12,7 @@ def send_async_email(app, msg):
             mail.send(msg)
     except Exception as e:
         app.logger.error(f"Failed to send email: {e}")
+
 
 def send_email(subject, sender, recipients, text_body, html_body):
     """Generic async email sender with text and HTML content."""
@@ -23,6 +26,7 @@ def send_email(subject, sender, recipients, text_body, html_body):
         args=(current_app._get_current_object(), msg)
     ).start()
 
+
 def send_password_reset_email(user):
     """Send password reset email to user with token."""
     token = user.get_reset_password_token()
@@ -34,6 +38,7 @@ def send_password_reset_email(user):
         text_body=render_template('email/reset_password.txt', user=user, token=token),
         html_body=render_template('email/reset_password.html', user=user, token=token)
     )
+
 
 def send_dashboard_report_email(asset_counts, status_counts, low_stock, pending_maintenance, active_checkouts, recipient=None):
     """Send dashboard summary email to admins or specified recipient."""
@@ -63,5 +68,27 @@ def send_dashboard_report_email(asset_counts, status_counts, low_stock, pending_
         pending_maintenance=pending_maintenance,
         active_checkouts=active_checkouts
     )
+
+    send_email(subject, sender, recipients, text_body, html_body)
+
+
+def send_low_stock_summary_email():
+    """Send summary email of all stationery items low in stock."""
+    low_stock_items = Stationery.query.filter(Stationery.quantity < Stationery.threshold).all()
+
+    if not low_stock_items:
+        current_app.logger.info("No low stock items found; no email sent.")
+        return
+
+    subject = "Low Stock Alert - Stationery Items"
+    sender = current_app.config.get('MAIL_USERNAME')
+    recipients = current_app.config.get('ADMINS', [])
+
+    if not recipients:
+        current_app.logger.warning("No recipients configured for low stock email.")
+        return
+
+    text_body = render_template('email/low_stock_alert.txt', low_stock_items=low_stock_items)
+    html_body = render_template('email/low_stock_alert.html', low_stock_items=low_stock_items)
 
     send_email(subject, sender, recipients, text_body, html_body)
