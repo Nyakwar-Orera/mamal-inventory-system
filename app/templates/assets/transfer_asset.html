@@ -1,0 +1,38 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Transfer Asset - MAMAL Lab Inventory{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2>Transfer Asset</h2>
+    <form method="POST" action="{{ url_for('assets.transfer_asset') }}">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.asset_id.label(class="form-label") }}
+            {{ form.asset_id(class="form-select") }}
+            {% if form.asset_id.errors %}
+                <div class="text-danger">
+                    {% for error in form.asset_id.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.to_location.label(class="form-label") }}
+            {{ form.to_location(class="form-select") }}
+            {% if form.to_location.errors %}
+                <div class="text-danger">
+                    {% for error in form.to_location.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+    </form>
+</div>
+{% endblock %}
