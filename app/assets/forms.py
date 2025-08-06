@@ -71,3 +71,14 @@ class AssetFilterForm(FlaskForm):
 
     search = StringField('Search', validators=[Optional()])
     submit = SubmitField('Filter')
+
+
+class TransferAssetForm(FlaskForm):
+    asset_id = SelectField('Asset', coerce=int, validators=[DataRequired()])
+    to_location = SelectField('Transfer To', choices=[
+        ('Mamal Boys Lab', 'Mamal Boys Lab'),
+        ('Mamal Girls Lab', 'Mamal Girls Lab'),
+        ('Masakin', 'Masakin'),
+        ('Rabwat', 'Rabwat')
+    ], validators=[DataRequired()])
+    submit = SubmitField('Transfer')
