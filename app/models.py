@@ -99,6 +99,25 @@ def update_asset_timestamp(mapper, connection, target):
 
 
 # -----------------------------
+# AssetTransfer Model
+# -----------------------------
+class AssetTransfer(db.Model):
+    __tablename__ = 'asset_transfer'
+
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'), nullable=False)
+    from_location = db.Column(db.String(50), nullable=False)
+    to_location = db.Column(db.String(50), nullable=False)
+    transferred_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    transfer_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    asset = db.relationship('Asset', backref='transfers')
+    user = db.relationship('User', backref='transfers')
+
+    def __repr__(self):
+        return f'<Transfer {self.asset.name} from {self.from_location} to {self.to_location}>'
+
+# -----------------------------
 # Stationery Model
 # -----------------------------
 class Stationery(db.Model):
