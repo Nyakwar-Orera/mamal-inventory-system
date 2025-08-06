@@ -1,10 +1,12 @@
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 from sqlalchemy import or_
+from datetime import datetime
+
 from app import db
-from app.models import Asset
+from app.models import Asset, AssetTransferLog
 from app.assets import bp
-from app.assets.forms import AssetFilterForm, AssetForm
+from app.assets.forms import AssetForm, AssetFilterForm, TransferAssetForm
 
 def flash_message(message, category='info'):
     flash(message, category)
@@ -21,10 +23,8 @@ def view_assets():
 
     if location:
         query = query.filter(Asset.location == location)
-
     if status:
         query = query.filter(Asset.status == status)
-
     if search:
         keyword = f"%{search}%"
         query = query.filter(
@@ -42,7 +42,6 @@ def view_assets():
     )
 
     filter_form = AssetFilterForm(location=location, status=status, search=search)
-
     return render_template('assets/view_assets.html', assets=assets, filter_form=filter_form)
 
 @bp.route('/<int:asset_id>')
@@ -96,3 +95,51 @@ def delete_asset(asset_id):
     db.session.commit()
     flash_message('Asset deleted successfully.', 'success')
     return redirect(url_for('assets.view_assets'))
+
+# -------------------------------
+# ✅ Transfer Asset Feature
+# -------------------------------
+@bp.route('/transfer', methods=['GET', 'POST'])
+@login_required
+def transfer_asset():
+    form = TransferAssetForm()
+    # Populate choices from DB
+    form.asset_id.choices = [(a.id, f"{a.name} ({a.serial_number})") for a in Asset.query.order_by(Asset.name).all()]
+
+    if form.validate_on_submit():
+        asset = Asset.query.get_or_404(form.asset_id.data)
+        from_location = asset.location
+        to_location = form.to_location.data
+
+        if from_location == to_location:
+            flash_message("Asset is already in the selected location.", "warning")
+        else:
+            # Update asset location
+            asset.location = to_location
+            db.session.commit()
+
+            # Log the transfer
+            transfer_log = AssetTransferLog(
+                asset_id=asset.id,
+                from_location=from_location,
+                to_location=to_location,
+                transferred_by=current_user.username,
+                transfer_date=datetime.utcnow()
+            )
+            db.session.add(transfer_log)
+            db.session.commit()
+
+            flash_message("Asset transferred successfully!", "success")
+            return redirect(url_for('assets.transfer_asset'))
+
+    return render_template('assets/transfer_asset.html', form=form)
+
+@bp.route('/transfer-history')
+@login_required
+def transfer_history():
+    page = request.args.get('page', 1, type=int)
+    transfers = AssetTransferLog.query.order_by(AssetTransferLog.transfer_date.desc()).paginate(
+        page=page,
+        per_page=current_app.config.get('ITEMS_PER_PAGE', 10)
+    )
+    return render_template('assets/transfer_history.html', transfers=transfers)
