@@ -16,7 +16,7 @@
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-{% set hide_nav = request.endpoint in ['auth.login', 'auth.register', 'auth.reset_password', 'auth.reset_password_request','main.index'] %}
+{% set hide_nav = request.endpoint in ['auth.login', 'auth.register', 'auth.reset_password', 'auth.reset_password_request', 'main.index'] %}
 
 {% if not hide_nav %}
 <!-- Navigation Bar -->
@@ -45,6 +45,9 @@
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{{ url_for('assets.view_assets') }}">View Assets</a></li>
                         <li><a class="dropdown-item" href="{{ url_for('assets.add_asset') }}">Add Asset</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('assets.transfer_asset') }}">Transfer Asset</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('assets.transfer_history') }}">Transfer History</a></li>
                     </ul>
                 </li>
 
