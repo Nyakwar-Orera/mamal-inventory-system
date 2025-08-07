@@ -4,7 +4,7 @@ from sqlalchemy import or_
 from datetime import datetime
 
 from app import db
-from app.models import Asset, AssetTransferLog
+from app.models import Asset, AssetTransfer
 from app.assets import bp
 from app.assets.forms import AssetForm, AssetFilterForm, TransferAssetForm
 
@@ -103,7 +103,6 @@ def delete_asset(asset_id):
 @login_required
 def transfer_asset():
     form = TransferAssetForm()
-    # Populate choices from DB
     form.asset_id.choices = [(a.id, f"{a.name} ({a.serial_number})") for a in Asset.query.order_by(Asset.name).all()]
 
     if form.validate_on_submit():
@@ -114,19 +113,17 @@ def transfer_asset():
         if from_location == to_location:
             flash_message("Asset is already in the selected location.", "warning")
         else:
-            # Update asset location
             asset.location = to_location
             db.session.commit()
 
-            # Log the transfer
-            transfer_log = AssetTransferLog(
+            transfer = AssetTransfer(
                 asset_id=asset.id,
                 from_location=from_location,
                 to_location=to_location,
-                transferred_by=current_user.username,
+                transferred_by=current_user.id,
                 transfer_date=datetime.utcnow()
             )
-            db.session.add(transfer_log)
+            db.session.add(transfer)
             db.session.commit()
 
             flash_message("Asset transferred successfully!", "success")
@@ -138,7 +135,7 @@ def transfer_asset():
 @login_required
 def transfer_history():
     page = request.args.get('page', 1, type=int)
-    transfers = AssetTransferLog.query.order_by(AssetTransferLog.transfer_date.desc()).paginate(
+    transfers = AssetTransfer.query.order_by(AssetTransfer.transfer_date.desc()).paginate(
         page=page,
         per_page=current_app.config.get('ITEMS_PER_PAGE', 10)
     )
