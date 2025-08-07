@@ -3,12 +3,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_mail import Mail
-from flask_migrate import Migrate  # ✅ Added
+from flask_migrate import Migrate
 from config import Config
 
 # Initialize extensions
 db = SQLAlchemy()
-migrate = Migrate()  # ✅ Added
+migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
 mail = Mail()
@@ -28,7 +28,7 @@ def create_app(config_class=Config):
 
     # Initialize extensions with app
     db.init_app(app)
-    migrate.init_app(app, db)  # ✅ Added
+    migrate.init_app(app, db)
     login.init_app(app)
     mail.init_app(app)
 
@@ -51,8 +51,15 @@ def create_app(config_class=Config):
     app.register_blueprint(reports_bp, url_prefix='/reports')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
-    # Start APScheduler after app context is pushed
+    # Start APScheduler and auto-apply migrations
     with app.app_context():
         start_scheduler()
+
+        # ✅ Automatically apply migrations on startup
+        from flask_migrate import upgrade as flask_migrate_upgrade
+        try:
+            flask_migrate_upgrade()
+        except Exception as e:
+            app.logger.error(f"Auto migration failed: {e}")
 
     return app
