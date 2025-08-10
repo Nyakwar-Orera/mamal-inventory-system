@@ -16,6 +16,7 @@ class AssetForm(FlaskForm):
         ('Printer', 'Printer'),
         ('Server', 'Server'),
         ('Camera', 'Camera'),
+        ('HDMI cable', 'HDMI cable'),
         ('Headphone', 'Headphone / Headset'),
         ('Paper cutter', 'Paper Cutter'),
         ('Stapler', 'Stapler'),
