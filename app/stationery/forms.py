@@ -10,6 +10,7 @@ ITEM_TYPES = [
     ('Sticker Paper 2', 'Sticker Paper - Type 2'),
     ('Sticker Paper 16', 'Sticker Paper - Type 16'),
     ('Sticker Paper 24', 'Sticker Paper - Type 24'),
+    ('Card Paper', 'Card Paper'),
     ('Certificate Paper', 'Certificate Paper'),
     ('Staplers', 'Staplers'),
     ('Pins', 'Pins'),
