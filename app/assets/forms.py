@@ -38,7 +38,8 @@ class AssetForm(FlaskForm):
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
         ('Mamal Girls Lab', 'Mamal Girls Lab'),
         ('Masakin', 'Masakin'),
-        ('Rabwat', 'Rabwat')
+        ('Rabwat', 'Rabwat'),
+        ('Main Office', 'Main Office')
     ], validators=[DataRequired()])
 
     status = SelectField('Status', choices=[
@@ -59,7 +60,8 @@ class AssetFilterForm(FlaskForm):
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
         ('Mamal Girls Lab', 'Mamal Girls Lab'),
         ('Masakin', 'Masakin'),
-        ('Rabwat', 'Rabwat')
+        ('Rabwat', 'Rabwat'),
+        ('Main Office', 'Main Office')
     ], validators=[Optional()])
 
     status = SelectField('Status', choices=[
@@ -81,5 +83,6 @@ class TransferAssetForm(FlaskForm):
         ('Mamal Girls Lab', 'Mamal Girls Lab'),
         ('Masakin', 'Masakin'),
         ('Rabwat', 'Rabwat')
+        ('Main Office', 'Main Office')
     ], validators=[DataRequired()])
     submit = SubmitField('Transfer')
