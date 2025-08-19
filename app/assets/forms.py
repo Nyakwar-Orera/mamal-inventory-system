@@ -82,7 +82,7 @@ class TransferAssetForm(FlaskForm):
         ('Mamal Boys Lab', 'Mamal Boys Lab'),
         ('Mamal Girls Lab', 'Mamal Girls Lab'),
         ('Masakin', 'Masakin'),
-        ('Rabwat', 'Rabwat')
+        ('Rabwat', 'Rabwat'),
         ('Main Office', 'Main Office')
     ], validators=[DataRequired()])
     submit = SubmitField('Transfer')
